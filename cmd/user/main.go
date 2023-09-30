@@ -1,20 +1,22 @@
 package main
 
 import (
-	"github.com/prongbang/user-service/internal/api"
-	"github.com/prongbang/user-service/internal/database"
-	"github.com/prongbang/user-service/internal/grpc"
+	"github.com/prongbang/user-service/internal/service"
+	"github.com/prongbang/user-service/internal/service/database"
 )
 
 func main() {
 	// Database
 	dbDriver := database.NewDatabaseDriver()
 
+	// Service
+	svc := service.New(dbDriver)
+
 	// gRPC
-	grpcs := grpc.CreateGRPC(dbDriver)
+	grpcs := svc.NewGRPC()
 	grpcs.Register()
 
 	// APIs
-	apis := api.CreateAPI(dbDriver)
+	apis := svc.NewAPI()
 	apis.Register()
 }

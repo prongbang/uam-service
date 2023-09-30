@@ -1,6 +1,6 @@
-package grpc
+package service
 
-import "github.com/prongbang/user-service/internal/user"
+import "github.com/prongbang/user-service/internal/service/user"
 
 type GRPC interface {
 	Register()

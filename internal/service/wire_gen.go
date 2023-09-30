@@ -4,21 +4,26 @@
 //go:build !wireinject
 // +build !wireinject
 
-package grpc
+package service
 
 import (
-	"github.com/prongbang/user-service/internal/database"
-	"github.com/prongbang/user-service/internal/user"
+	"github.com/prongbang/user-service/internal/service/database"
+	"github.com/prongbang/user-service/internal/service/user"
 )
 
 // Injectors from wire.go:
 
-func CreateGRPC(dbDriver database.Drivers) GRPC {
+func New(dbDriver database.Drivers) Service {
 	dataSource := user.NewDataSource(dbDriver)
 	repository := user.NewRepository(dataSource)
 	useCase := user.NewUseCase(repository)
+	handler := user.NewHandler(useCase)
+	router := user.NewRouter(handler)
+	serviceRouters := NewRouters(router)
+	serviceAPI := NewAPI(serviceRouters)
 	userServer := user.NewServer(useCase)
 	listener := user.NewListener(userServer)
 	grpc := NewGRPC(listener)
-	return grpc
+	serviceService := NewService(serviceAPI, grpc)
+	return serviceService
 }

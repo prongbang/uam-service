@@ -17,7 +17,7 @@ func (d *drivers) GetPqDB() *bun.DB {
 }
 
 func NewDrivers(
-	pqDB PqDriver,
+	pqDB PqxDriver,
 ) Drivers {
 	return &drivers{
 		PqDB: pqDB.Connect(),

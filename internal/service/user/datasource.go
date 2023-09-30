@@ -1,6 +1,8 @@
 package user
 
-import "github.com/prongbang/user-service/internal/database"
+import (
+	"github.com/prongbang/user-service/internal/service/database"
+)
 
 type DataSource interface {
 }

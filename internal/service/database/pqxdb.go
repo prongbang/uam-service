@@ -7,15 +7,15 @@ import (
 	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
-type PqDriver interface {
+type PqxDriver interface {
 	Connect() *bun.DB
 }
 
-type pqDriver struct {
+type pqxDriver struct {
 }
 
-// Connect implements PqDriver.
-func (p *pqDriver) Connect() *bun.DB {
+// Connect implements PqxDriver.
+func (p *pqxDriver) Connect() *bun.DB {
 	config, err := pgx.ParseConfig("postgres://postgres:@localhost:5432/test?sslmode=disable")
 	if err != nil {
 		panic(err)
@@ -28,6 +28,6 @@ func (p *pqDriver) Connect() *bun.DB {
 	return db
 }
 
-func NewPqDriver() PqDriver {
-	return &pqDriver{}
+func NewPqDriver() PqxDriver {
+	return &pqxDriver{}
 }

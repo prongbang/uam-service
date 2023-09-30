@@ -1,8 +1,8 @@
-package api
+package service
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/user-service/internal/user"
+	"github.com/prongbang/user-service/internal/service/user"
 	"github.com/prongbang/user-service/pkg/core"
 )
 
