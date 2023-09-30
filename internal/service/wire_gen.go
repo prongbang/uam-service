@@ -7,16 +7,17 @@
 package service
 
 import (
+	"github.com/casbin/casbin/v2"
 	"github.com/prongbang/user-service/internal/service/database"
 	"github.com/prongbang/user-service/internal/service/user"
 )
 
 // Injectors from wire.go:
 
-func New(dbDriver database.Drivers) Service {
+func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	dataSource := user.NewDataSource(dbDriver)
 	repository := user.NewRepository(dataSource)
-	useCase := user.NewUseCase(repository)
+	useCase := user.NewUseCase(repository, enforce)
 	apiHandler := user.NewHandler(useCase)
 	apiRouter := user.NewRouter(apiHandler)
 	serviceRouters := NewRouters(apiRouter)

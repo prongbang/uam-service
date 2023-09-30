@@ -16,6 +16,7 @@ func New(dbDriver database.Drivers) Schema {
 	schemaUserSchema := NewUserSchema(dbDriver)
 	schemaRoleSchema := NewRoleSchema(dbDriver)
 	schemaUserRoleSchema := NewUserRoleSchema(dbDriver)
-	schemaSchema := NewSchema(schemaUserSchema, schemaRoleSchema, schemaUserRoleSchema)
+	schemaRBACSchema := NewRBACSchema(dbDriver)
+	schemaSchema := NewSchema(schemaUserSchema, schemaRoleSchema, schemaUserRoleSchema, schemaRBACSchema)
 	return schemaSchema
 }
