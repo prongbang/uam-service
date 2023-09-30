@@ -12,14 +12,14 @@ import (
 const tableUsers = "users"
 
 type User struct {
-	ID        uuid.UUID `bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
-	Username  string    `json:"username"`
-	Password  string    `json:"password"`
-	Email     string    `json:"email"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Avatar    string    `json:"avatar"`
-	Mobile    string    `json:"mobile"`
+	ID        uuid.UUID `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
+	Username  *string   `json:"username,omitempty"`
+	Password  string    `json:"password,omitempty"`
+	Email     *string   `json:"email,omitempty"`
+	FirstName *string   `json:"first_name,omitempty"`
+	LastName  *string   `json:"last_name,omitempty"`
+	Avatar    *string   `json:"avatar,omitempty"`
+	Mobile    *string   `json:"mobile,omitempty"`
 	Flag      int       `json:"flag"`
 	LastLogin time.Time `json:"last_login"`
 	CreatedAt time.Time `json:"created_at" bun:",default:current_timestamp"`

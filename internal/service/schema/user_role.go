@@ -10,7 +10,7 @@ import (
 const tableUsersRole = "user_roles"
 
 type UserRole struct {
-	ID     uuid.UUID `bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
+	ID     uuid.UUID `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
 	UserID uuid.UUID `json:"user_id" bun:"user_id,type:uuid"`
 	RoleID uuid.UUID `json:"role_id" bun:"role_id,type:uuid"`
 }
