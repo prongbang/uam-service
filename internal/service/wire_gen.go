@@ -17,13 +17,13 @@ func New(dbDriver database.Drivers) Service {
 	dataSource := user.NewDataSource(dbDriver)
 	repository := user.NewRepository(dataSource)
 	useCase := user.NewUseCase(repository)
-	handler := user.NewHandler(useCase)
-	router := user.NewRouter(handler)
-	serviceRouters := NewRouters(router)
+	apiHandler := user.NewHandler(useCase)
+	apiRouter := user.NewRouter(apiHandler)
+	serviceRouters := NewRouters(apiRouter)
 	serviceAPI := NewAPI(serviceRouters)
 	userServer := user.NewServer(useCase)
-	listener := user.NewListener(userServer)
-	grpc := NewGRPC(listener)
+	grpcListener := user.NewListener(userServer)
+	grpc := NewGRPC(grpcListener)
 	serviceService := NewService(serviceAPI, grpc)
 	return serviceService
 }
