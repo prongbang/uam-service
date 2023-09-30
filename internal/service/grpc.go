@@ -7,14 +7,14 @@ type GRPC interface {
 }
 
 type gRPC struct {
-	UserListener user.Listener
+	UserListener user.GRPCListener
 }
 
 func (g *gRPC) Register() {
 	g.UserListener.Serve()
 }
 
-func NewGRPC(userListener user.Listener) GRPC {
+func NewGRPC(userListener user.GRPCListener) GRPC {
 	return &gRPC{
 		UserListener: userListener,
 	}

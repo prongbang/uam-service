@@ -5,21 +5,21 @@ import (
 	"github.com/prongbang/user-service/pkg/core"
 )
 
-type Router interface {
+type APIRouter interface {
 	core.Router
 }
 
-type router struct {
-	Handle Handler
+type apiRouter struct {
+	Handle APIHandler
 }
 
-// Initial implements Router.
-func (r *router) Initial(app *fiber.App) {
+// Initial implements APIRouter.
+func (r *apiRouter) Initial(app *fiber.App) {
 
 }
 
-func NewRouter(handle Handler) Router {
-	return &router{
+func NewRouter(handle APIHandler) APIRouter {
+	return &apiRouter{
 		Handle: handle,
 	}
 }

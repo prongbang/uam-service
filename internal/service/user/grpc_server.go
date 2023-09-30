@@ -7,12 +7,12 @@ import (
 )
 
 // Server is used to implement user.UserServer
-type userServer struct {
+type gRPCServer struct {
 	Uc UseCase
 	UnimplementedUserServer
 }
 
-func (a *userServer) GetUser(ctx context.Context, request *UserRequest) (*UserResponse, error) {
+func (a *gRPCServer) GetUser(ctx context.Context, request *UserRequest) (*UserResponse, error) {
 	log.Printf("Received: username=%v", request.GetUsername())
 
 	// Mock find user by username
@@ -29,7 +29,7 @@ func (a *userServer) GetUser(ctx context.Context, request *UserRequest) (*UserRe
 }
 
 func NewServer(uc UseCase) UserServer {
-	return &userServer{
+	return &gRPCServer{
 		Uc: uc,
 	}
 }

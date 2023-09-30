@@ -10,16 +10,16 @@ import (
 
 const port = ":50052"
 
-type Listener interface {
+type GRPCListener interface {
 	Serve()
 }
 
-type listener struct {
+type gRPCListener struct {
 	UserServer UserServer
 }
 
-// Listen implements Listener.
-func (l *listener) Serve() {
+// Serve implements GRPCListener.
+func (l *gRPCListener) Serve() {
 	go func() {
 		lis, err := net.Listen("tcp", port)
 		if err != nil {
@@ -37,8 +37,8 @@ func (l *listener) Serve() {
 	}()
 }
 
-func NewListener(userServer UserServer) Listener {
-	return &listener{
+func NewListener(userServer UserServer) GRPCListener {
+	return &gRPCListener{
 		UserServer: userServer,
 	}
 }

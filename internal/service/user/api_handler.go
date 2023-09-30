@@ -1,14 +1,14 @@
 package user
 
-type Handler interface {
+type APIHandler interface {
 }
 
-type handler struct {
+type apiHandler struct {
 	Uc UseCase
 }
 
-func NewHandler(uc UseCase) Handler {
-	return &handler{
+func NewHandler(uc UseCase) APIHandler {
+	return &apiHandler{
 		Uc: uc,
 	}
 }
