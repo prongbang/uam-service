@@ -16,7 +16,7 @@ type pqxDriver struct {
 
 // Connect implements PqxDriver.
 func (p *pqxDriver) Connect() *bun.DB {
-	config, err := pgx.ParseConfig("postgres://postgres:@localhost:5432/test?sslmode=disable")
+	config, err := pgx.ParseConfig("postgres://postgres:P7VRy9Hy!k4xAB@db.biuqhoexzckdysnbxqvc.supabase.co:5432/postgres?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}

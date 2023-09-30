@@ -1,3 +1,9 @@
+install:
+	brew install protobuf
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+	brew install grpcurl
+
 # make gen name=user in=internal/user out=internal
 gen:
 	protoc --go_out=$(out) --go_opt=paths=import \
@@ -5,11 +11,11 @@ gen:
         $(in)/$(name).proto
 
 gen_user:
-	make gen name=user in=internal/user out=internal
-
+	make gen name=user in=internal/service/user out=internal/service
 
 run:
 	go run cmd/user/main.go
 
+# brew install grpcurl
 test_login:
-	grpcurl -plaintext -import-path ./internal/user -proto user.proto -d '{"username": "admin"}' '[::1]:50052' user.User/GetUser
+	grpcurl -plaintext -import-path ./internal/service/user -proto user.proto -d '{"username": "admin"}' '[::1]:50052' user.User/GetUser
