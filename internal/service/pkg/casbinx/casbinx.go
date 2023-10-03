@@ -32,7 +32,7 @@ func New() *casbin.Enforcer {
 	a, _ := pgxadapter.NewAdapter(
 		os.Getenv("PQ_CONNECTION"),
 		pgxadapter.WithDatabase(os.Getenv("PQ_DATABASE")),
-		pgxadapter.WithTableName(os.Getenv("RBAC_TABLE")),
+		pgxadapter.WithTableName("rbacs"),
 		pgxadapter.WithSkipTableCreate(),
 	)
 
