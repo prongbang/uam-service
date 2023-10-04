@@ -2,9 +2,9 @@ package main
 
 import (
 	_ "github.com/prongbang/goenv"
+	"github.com/prongbang/user-service/internal/pkg/casbinx"
 	"github.com/prongbang/user-service/internal/service"
 	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/service/pkg/casbinx"
 	"github.com/prongbang/user-service/internal/service/schema"
 )
 

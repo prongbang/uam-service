@@ -9,7 +9,8 @@ package service
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/service/user"
+	"github.com/prongbang/user-service/internal/service/uam"
+	"github.com/prongbang/user-service/internal/shared/user"
 )
 
 // Injectors from wire.go:
@@ -18,12 +19,12 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	dataSource := user.NewDataSource(dbDriver)
 	repository := user.NewRepository(dataSource)
 	useCase := user.NewUseCase(repository, enforce)
-	apiHandler := user.NewHandler(useCase)
-	apiRouter := user.NewRouter(apiHandler)
+	apiHandler := uam.NewHandler(useCase)
+	apiRouter := uam.NewRouter(apiHandler)
 	serviceRouters := NewRouters(apiRouter)
 	serviceAPI := NewAPI(serviceRouters)
-	userServer := user.NewServer(useCase)
-	grpcListener := user.NewListener(userServer)
+	userServer := uam.NewServer(useCase)
+	grpcListener := uam.NewListener(userServer)
 	grpc := NewGRPC(grpcListener)
 	serviceService := NewService(serviceAPI, grpc)
 	return serviceService

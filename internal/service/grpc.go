@@ -1,20 +1,20 @@
 package service
 
-import "github.com/prongbang/user-service/internal/service/user"
+import "github.com/prongbang/user-service/internal/service/uam"
 
 type GRPC interface {
 	Register()
 }
 
 type gRPC struct {
-	UserListener user.GRPCListener
+	UserListener uam.GRPCListener
 }
 
 func (g *gRPC) Register() {
 	g.UserListener.Serve()
 }
 
-func NewGRPC(userListener user.GRPCListener) GRPC {
+func NewGRPC(userListener uam.GRPCListener) GRPC {
 	return &gRPC{
 		UserListener: userListener,
 	}

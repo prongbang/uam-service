@@ -1,4 +1,4 @@
-package user
+package uam
 
 import (
 	"github.com/gofiber/fiber/v2"

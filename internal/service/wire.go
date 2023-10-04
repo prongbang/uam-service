@@ -7,7 +7,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/google/wire"
 	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/service/user"
+	"github.com/prongbang/user-service/internal/service/uam"
+	"github.com/prongbang/user-service/internal/shared/user"
 )
 
 func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
@@ -16,6 +17,7 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 		NewAPI,
 		NewRouters,
 		NewGRPC,
+		uam.ProviderSet,
 		user.ProviderSet,
 	)
 	return nil
