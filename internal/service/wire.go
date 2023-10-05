@@ -8,6 +8,7 @@ import (
 	"github.com/google/wire"
 	"github.com/prongbang/user-service/internal/service/database"
 	"github.com/prongbang/user-service/internal/service/uam"
+	"github.com/prongbang/user-service/internal/shared/role"
 	"github.com/prongbang/user-service/internal/shared/user"
 )
 
@@ -19,6 +20,7 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 		NewGRPC,
 		uam.ProviderSet,
 		user.ProviderSet,
+		role.ProviderSet,
 	)
 	return nil
 }

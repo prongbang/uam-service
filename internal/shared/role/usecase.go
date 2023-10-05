@@ -6,7 +6,7 @@ type UseCase interface {
 	Count() int64
 	GetList(filter Filter) []Role
 	GetListByUnderLevel(level int) []Role
-	GetListByUnderRoleId(roleId string) []Role
+	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
 	Add(data *Role) error
@@ -30,8 +30,11 @@ func (u *useCase) GetListByUnderLevel(level int) []Role {
 	return u.Repo.GetListByUnderLevel(level)
 }
 
-func (u *useCase) GetListByUnderRoleId(roleId string) []Role {
-	return u.Repo.GetListByUnderRoleId(roleId)
+func (u *useCase) GetListByUnderRoles(roles []string) []Role {
+	if len(roles) == 0 {
+		return []Role{}
+	}
+	return u.Repo.GetListByUnderRoles(roles)
 }
 
 func (u *useCase) GetById(id string) Role {

@@ -11,15 +11,15 @@ type Routers interface {
 }
 
 type routers struct {
-	UserRouter uam.APIRouter
+	UamRouter uam.APIRouter
 }
 
 func (r *routers) Initials(app *fiber.App) {
-	r.UserRouter.Initial(app)
+	r.UamRouter.Initial(app)
 }
 
 func NewRouters(userRouter uam.APIRouter) Routers {
 	return &routers{
-		UserRouter: userRouter,
+		UamRouter: userRouter,
 	}
 }

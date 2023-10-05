@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/prongbang/user-service/internal/service/database"
+	"github.com/prongbang/user-service/pkg/core"
 )
 
 type DataSource interface {
 	Count() int64
 	GetList(filter Filter) []Role
 	GetListByUnderLevel(level int) []Role
-	GetListByUnderRoleId(roleId string) []Role
+	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
 	Add(data *Role) error
@@ -68,16 +69,27 @@ func (d *dataSource) GetListByUnderLevel(level int) []Role {
 	return []Role{}
 }
 
-func (d *dataSource) GetListByUnderRoleId(roleId string) []Role {
+func (d *dataSource) GetListByUnderRoles(roles []string) []Role {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 	sql := `
 	SELECT 
-	    id, name, level
-	FROM roles
-	WHERE level >= (SELECT level FROM roles WHERE id = ? LIMIT 1)`
+		distinct r.id, r.name, r.level
+	FROM roles AS r
+	INNER JOIN (
+		SELECT level
+		FROM roles
+		WHERE id IN (%s)
+	) AS q ON r.level >= q.level`
+
 	var rows []Role
-	err := db.NewRaw(sql, roleId).Scan(ctx, &rows)
+	args := []any{}
+	for _, r := range roles {
+		args = append(args, r)
+	}
+	sql = fmt.Sprintf(sql, core.Commas(args))
+
+	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
 		fmt.Println(err)
 		return []Role{}

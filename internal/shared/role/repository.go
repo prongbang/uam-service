@@ -4,7 +4,7 @@ type Repository interface {
 	Count() int64
 	GetList(filter Filter) []Role
 	GetListByUnderLevel(level int) []Role
-	GetListByUnderRoleId(roleId string) []Role
+	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
 	Add(data *Role) error
@@ -28,8 +28,8 @@ func (r *repository) GetListByUnderLevel(level int) []Role {
 	return r.Ds.GetListByUnderLevel(level)
 }
 
-func (r *repository) GetListByUnderRoleId(roleId string) []Role {
-	return r.Ds.GetListByUnderRoleId(roleId)
+func (r *repository) GetListByUnderRoles(roles []string) []Role {
+	return r.Ds.GetListByUnderRoles(roles)
 }
 
 func (r *repository) GetById(id string) Role {
