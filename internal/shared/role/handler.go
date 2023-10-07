@@ -59,10 +59,12 @@ func (h *handler) Update(c *fiber.Ctx) error {
 }
 
 func (h *handler) Delete(c *fiber.Ctx) error {
+	payload := core.Payload(c)
+
 	b := GetByIdRequest{}
 	_ = c.BodyParser(&b)
 
-	if err := h.RoleUc.Delete(b.ID); err != nil {
+	if err := h.RoleUc.DeleteByRole(payload.Roles, b.ID); err != nil {
 		return core.BadRequest(c, localizations.CommonCannotDeletePleaseTryAgain)
 	}
 

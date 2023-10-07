@@ -3,6 +3,7 @@ package role
 import (
 	"errors"
 	"github.com/prongbang/user-service/internal/localizations"
+	"github.com/prongbang/user-service/pkg/common"
 )
 
 type UseCase interface {
@@ -15,6 +16,7 @@ type UseCase interface {
 	Add(data *CreateRole) error
 	Update(data *UpdateRole) error
 	Delete(id string) error
+	DeleteByRole(roles []string, id string) error
 }
 
 type useCase struct {
@@ -64,6 +66,13 @@ func (u *useCase) Update(data *UpdateRole) error {
 
 func (u *useCase) Delete(id string) error {
 	return u.Repo.Delete(id)
+}
+
+func (u *useCase) DeleteByRole(roles []string, id string) error {
+	if common.Contains[string](roles, id) {
+		return errors.New(localizations.CommonCannotDeleteData)
+	}
+	return u.Delete(id)
 }
 
 func NewUseCase(repo Repository) UseCase {
