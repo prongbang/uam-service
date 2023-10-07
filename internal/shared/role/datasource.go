@@ -2,7 +2,9 @@ package role
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/prongbang/user-service/internal/localizations"
 	"github.com/prongbang/user-service/internal/service/database"
 	"github.com/prongbang/user-service/pkg/core"
 )
@@ -14,8 +16,8 @@ type DataSource interface {
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
-	Add(data *Role) error
-	Update(data *Role) error
+	Add(data *CreateRole) error
+	Update(data *UpdateRole) error
 	Delete(id string) error
 }
 
@@ -105,7 +107,11 @@ func (d *dataSource) GetById(id string) Role {
 	ctx := context.Background()
 
 	var rows []Role
-	err := db.NewSelect().Table("roles").Model(&rows).Where("id = ?", id).Limit(1).Scan(ctx)
+	err := db.NewSelect().
+		Model(&rows).
+		Where("r.id = ?", id).
+		Limit(1).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return Role{}
@@ -121,7 +127,11 @@ func (d *dataSource) GetByName(name string) Role {
 	ctx := context.Background()
 
 	var rows []Role
-	err := db.NewSelect().Table("roles").Model(&rows).Where("UPPER(name) = UPPER(?)", name).Limit(1).Scan(ctx)
+	err := db.NewSelect().
+		Model(&rows).
+		Where("UPPER(r.name) = UPPER(?)", name).
+		Limit(1).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return Role{}
@@ -132,22 +142,20 @@ func (d *dataSource) GetByName(name string) Role {
 	return Role{}
 }
 
-func (d *dataSource) Add(data *Role) error {
+func (d *dataSource) Add(data *CreateRole) error {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	id := ""
-	_, err := db.NewInsert().Table("roles").Model(data).Returning("id", &id).Exec(ctx)
-	if err == nil {
-		if id == "" {
-			data.ID = id
-			return nil
-		}
+	id := new(string)
+	_ = db.NewInsert().Model(data).Returning("id").Scan(ctx, id)
+	if *id != "" {
+		data.ID = id
+		return nil
 	}
-	return fmt.Errorf("%s", "Cannot add or update a child row")
+	return errors.New(localizations.CommonCannotAddData)
 }
 
-func (d *dataSource) Update(data *Role) error {
+func (d *dataSource) Update(data *UpdateRole) error {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
@@ -159,30 +167,33 @@ func (d *dataSource) Update(data *Role) error {
 		value["level"] = data.Level
 	}
 	if len(value) == 0 {
-		return fmt.Errorf("%s", "Is not data to update")
+		return errors.New(localizations.CommonThereIsNoDataUpdate)
 	}
 
-	rs, err := db.NewUpdate().Model(&value).Table("roles").Where("id = ?", data.ID).Exec(ctx)
+	_, err := db.NewUpdate().
+		Table("roles").
+		Model(&value).
+		Where("id = ?", data.ID).
+		Exec(ctx)
 	if err == nil {
-		if row, e := rs.LastInsertId(); e == nil {
-			if row > -1 {
-				return nil
-			}
-		}
+		return nil
 	}
-	return fmt.Errorf("%s", "Cannot add or update a child row")
+	return errors.New(localizations.CommonCannotAddData)
 }
 
 func (d *dataSource) Delete(id string) error {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
-	rs, err := db.NewDelete().Table("roles").Where("id = ?", id).Exec(ctx)
+	rs, err := db.NewDelete().
+		Table("roles").
+		Where("id = ?", id).
+		Exec(ctx)
 	if err == nil {
 		if row, e := rs.RowsAffected(); e == nil && row > 0 {
 			return nil
 		}
 	}
-	return fmt.Errorf("%s", "Cannot delete a child row")
+	return errors.New(localizations.CommonCannotDeleteData)
 }
 
 func NewDataSource(driver database.Drivers) DataSource {

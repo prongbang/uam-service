@@ -1,6 +1,9 @@
 package role
 
-import "fmt"
+import (
+	"errors"
+	"github.com/prongbang/user-service/internal/localizations"
+)
 
 type UseCase interface {
 	Count() int64
@@ -9,8 +12,8 @@ type UseCase interface {
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
-	Add(data *Role) error
-	Update(data *Role) error
+	Add(data *CreateRole) error
+	Update(data *UpdateRole) error
 	Delete(id string) error
 }
 
@@ -45,16 +48,16 @@ func (u *useCase) GetByName(name string) Role {
 	return u.Repo.GetByName(name)
 }
 
-func (u *useCase) Add(data *Role) error {
+func (u *useCase) Add(data *CreateRole) error {
 	if rs := u.Repo.GetByName(data.Name); rs.ID != "" {
-		return fmt.Errorf("%s", "Data duplicated")
+		return errors.New(localizations.CommonDataIsDuplicated)
 	}
 	return u.Repo.Add(data)
 }
 
-func (u *useCase) Update(data *Role) error {
+func (u *useCase) Update(data *UpdateRole) error {
 	if rs := u.Repo.GetByName(data.Name); rs.ID != "" && rs.ID != data.ID {
-		return fmt.Errorf("%s", "Data duplicated")
+		return errors.New(localizations.CommonDataIsDuplicated)
 	}
 	return u.Repo.Update(data)
 }

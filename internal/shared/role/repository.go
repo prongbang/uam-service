@@ -7,8 +7,8 @@ type Repository interface {
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
-	Add(data *Role) error
-	Update(data *Role) error
+	Add(data *CreateRole) error
+	Update(data *UpdateRole) error
 	Delete(id string) error
 }
 
@@ -40,11 +40,11 @@ func (r *repository) GetByName(name string) Role {
 	return r.Ds.GetByName(name)
 }
 
-func (r *repository) Add(data *Role) error {
+func (r *repository) Add(data *CreateRole) error {
 	return r.Ds.Add(data)
 }
 
-func (r *repository) Update(data *Role) error {
+func (r *repository) Update(data *UpdateRole) error {
 	return r.Ds.Update(data)
 }
 

@@ -3,7 +3,6 @@ package schema
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/prongbang/user-service/internal/service/database"
 	"github.com/uptrace/bun"
 )
@@ -11,14 +10,14 @@ import (
 const tableRbac = "rbacs"
 
 type RBAC struct {
-	ID    uuid.UUID `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
-	PType string    `json:"pType" bun:"p_type"`
-	V0    string    `json:"v0" bun:"v0"`
-	V1    string    `json:"v1" bun:"v1"`
-	V2    string    `json:"v2" bun:"v2"`
-	V3    string    `json:"v3" bun:"v3"`
-	V4    string    `json:"v4" bun:"v4"`
-	V5    string    `json:"v5" bun:"v5"`
+	ID    string `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
+	PType string `json:"pType" bun:"p_type"`
+	V0    string `json:"v0" bun:"v0"`
+	V1    string `json:"v1" bun:"v1"`
+	V2    string `json:"v2" bun:"v2"`
+	V3    string `json:"v3" bun:"v3"`
+	V4    string `json:"v4" bun:"v4"`
+	V5    string `json:"v5" bun:"v5"`
 }
 
 var _ bun.AfterCreateTableHook = (*RBAC)(nil)

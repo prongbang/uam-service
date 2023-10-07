@@ -19,8 +19,8 @@ type apiRouter struct {
 func (r *apiRouter) Initial(app *fiber.App) {
 	v1 := app.Group("/v1")
 	{
-		v1.Post("/role", r.RoleValidate.GetList, r.RoleHandle.GetList)
-		v1.Post("/role/id", r.RoleValidate.GetById, r.RoleHandle.GetById)
+		v1.Post("/role/get/all", r.RoleValidate.GetList, r.RoleHandle.GetList)
+		v1.Post("/role/get", r.RoleValidate.GetById, r.RoleHandle.GetById)
 		v1.Post("/role/create", r.RoleValidate.Create, r.RoleHandle.Create)
 		v1.Post("/role/update", r.RoleValidate.Update, r.RoleHandle.Update)
 		v1.Post("/role/delete", r.RoleValidate.Delete, r.RoleHandle.Delete)

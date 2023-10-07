@@ -1,8 +1,8 @@
 package role
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/prongbang/user-service/internal/localizations"
 	"github.com/prongbang/user-service/internal/shared/user"
 	"github.com/prongbang/user-service/pkg/core"
 )
@@ -17,11 +17,15 @@ type handler struct {
 }
 
 func (h *handler) GetById(c *fiber.Ctx) error {
-	id := c.Params("id")
-	if id != "" {
-		return core.Ok(c, h.RoleUc.GetById(id))
+	b := GetByIdRequest{}
+	_ = c.BodyParser(&b)
+
+	data := h.RoleUc.GetById(b.ID)
+	if data.ID == "" {
+		return core.NotFound(c, localizations.CommonNotFoundData)
 	}
-	return core.BadRequest(c, "Required id")
+
+	return core.Ok(c, data)
 }
 
 func (h *handler) GetList(c *fiber.Ctx) error {
@@ -33,52 +37,36 @@ func (h *handler) GetList(c *fiber.Ctx) error {
 }
 
 func (h *handler) Create(c *fiber.Ctx) error {
-	b := Role{}
-	if err := c.BodyParser(&b); err != nil {
-		return core.BadRequest(c, "Bad Request")
-	}
-
-	v := validator.New()
-	if err := v.Struct(b); err != nil {
-		return core.BadRequest(c, err.Error())
-	}
+	b := CreateRole{}
+	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.Add(&b); err != nil {
 		return core.BadRequest(c, err.Error())
 	}
+
 	return core.Created(c, b)
 }
 
 func (h *handler) Update(c *fiber.Ctx) error {
-	b := Role{}
-	id := c.Params("id")
-	bErr := c.BodyParser(&b)
-	if bErr != nil || id == "" {
-		return core.BadRequest(c, "Required id")
-	}
-
-	b.ID = id
-	v := validator.New()
-	if err := v.Struct(b); err != nil {
-		return core.BadRequest(c, err.Error())
-	}
+	b := UpdateRole{}
+	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.Update(&b); err != nil {
 		return core.BadRequest(c, err.Error())
 	}
+
 	return core.Ok(c, b)
 }
 
 func (h *handler) Delete(c *fiber.Ctx) error {
-	id := c.Params("id")
-	if id == "" {
-		return core.BadRequest(c, "Required id")
+	b := GetByIdRequest{}
+	_ = c.BodyParser(&b)
+
+	if err := h.RoleUc.Delete(b.ID); err != nil {
+		return core.BadRequest(c, localizations.CommonCannotDeletePleaseTryAgain)
 	}
 
-	if err := h.RoleUc.Delete(id); err != nil {
-		return core.BadRequest(c, "Can't delete")
-	}
-	return core.Ok(c, fiber.Map{"message": "Delete success"})
+	return core.Ok(c, core.SuccessData(c, localizations.CommonDeleteSuccess))
 }
 
 func NewHandler(userUc user.UseCase, roleUc UseCase) Handler {

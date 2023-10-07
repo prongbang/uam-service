@@ -3,7 +3,6 @@ package schema
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/prongbang/user-service/internal/service/database"
 	"github.com/uptrace/bun"
 	"time"
@@ -12,7 +11,7 @@ import (
 const tableUsers = "users"
 
 type User struct {
-	ID        uuid.UUID `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
+	ID        string    `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
 	Username  *string   `json:"username,omitempty"`
 	Password  string    `json:"password,omitempty"`
 	Email     *string   `json:"email,omitempty"`

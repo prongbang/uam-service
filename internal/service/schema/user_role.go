@@ -3,16 +3,15 @@ package schema
 import (
 	"context"
 	"fmt"
-	"github.com/google/uuid"
 	"github.com/prongbang/user-service/internal/service/database"
 )
 
 const tableUsersRole = "user_roles"
 
 type UserRole struct {
-	ID     uuid.UUID `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
-	UserID uuid.UUID `json:"user_id" bun:"user_id,type:uuid"`
-	RoleID uuid.UUID `json:"role_id" bun:"role_id,type:uuid"`
+	ID     string `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
+	UserID string `json:"user_id" bun:"user_id,type:uuid"`
+	RoleID string `json:"role_id" bun:"role_id,type:uuid"`
 }
 
 type UserRoleSchema interface {

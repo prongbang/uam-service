@@ -1,7 +1,9 @@
 package role
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/prongbang/user-service/internal/localizations"
 	"github.com/prongbang/user-service/pkg/core"
 )
 
@@ -13,7 +15,12 @@ type validate struct {
 }
 
 func (v *validate) GetById(c *fiber.Ctx) error {
-	return c.Next()
+	b := GetByIdRequest{}
+	err := c.BodyParser(&b)
+	if err != nil || b.ID != "" {
+		return c.Next()
+	}
+	return core.BadRequest(c, localizations.CommonInvalidData)
 }
 
 func (v *validate) GetList(c *fiber.Ctx) error {
@@ -21,15 +28,40 @@ func (v *validate) GetList(c *fiber.Ctx) error {
 }
 
 func (v *validate) Create(c *fiber.Ctx) error {
+	b := CreateRole{}
+	err := c.BodyParser(&b)
+	if err != nil {
+		return core.BadRequest(c, localizations.CommonInvalidData)
+	}
+
+	vx := validator.New()
+	if err = vx.Struct(b); err != nil {
+		return core.BadRequest(c, err.Error())
+	}
 	return c.Next()
 }
 
 func (v *validate) Update(c *fiber.Ctx) error {
+	b := UpdateRole{}
+	err := c.BodyParser(&b)
+	if err != nil || b.ID == "" {
+		return core.BadRequest(c, localizations.CommonInvalidData)
+	}
+
+	vx := validator.New()
+	if err = vx.Struct(b); err != nil {
+		return core.BadRequest(c, err.Error())
+	}
 	return c.Next()
 }
 
 func (v *validate) Delete(c *fiber.Ctx) error {
-	return c.Next()
+	b := DelByIdRequest{}
+	err := c.BodyParser(&b)
+	if err != nil || b.ID != "" {
+		return c.Next()
+	}
+	return core.BadRequest(c, localizations.CommonInvalidData)
 }
 
 func NewValidate() Validate {

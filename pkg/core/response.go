@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/prongbang/user-service/internal/localizations"
 	"net/http"
 )
 
@@ -25,35 +26,50 @@ type Success struct {
 }
 
 type Response struct {
-	Data    interface{} `json:"data,omitempty"`
-	Message interface{} `json:"message"`
+	Data    any `json:"data,omitempty"`
+	Message any `json:"message"`
 }
 
-func Ok(c *fiber.Ctx, data interface{}) error {
+func SuccessData(c *fiber.Ctx, key string) Success {
+	return Success{
+		Message: MessageText(c, key),
+	}
+}
+
+func MessageText(c *fiber.Ctx, key string) string {
+	locale := c.Get(fiber.HeaderAcceptLanguage)
+	if locale == "" {
+		locale = localizations.En
+	}
+	return localizations.Translate(locale, key)
+}
+
+func Ok(c *fiber.Ctx, data any) error {
 	return c.Status(http.StatusOK).JSON(data)
 }
 
-func SendStream(c *fiber.Ctx, data interface{}) error {
+func SendStream(c *fiber.Ctx, data any) error {
 	return c.Status(http.StatusOK).JSON(data)
 }
 
-func Created(c *fiber.Ctx, data interface{}) error {
+func Created(c *fiber.Ctx, data any) error {
 	return c.Status(http.StatusCreated).JSON(data)
 }
 
-func BadRequest(c *fiber.Ctx, data interface{}) error {
-	if data == nil {
+func BadRequest(c *fiber.Ctx, data ...any) error {
+	if len(data) == 0 {
 		return c.Status(http.StatusBadRequest).JSON(&Response{
 			Message: StatusBadRequest,
 		})
 	}
 
 	// Validation Errors
-	if _, okValidation := data.(validator.ValidationErrors); okValidation {
+	value := data[0]
+	if _, okValidation := value.(validator.ValidationErrors); okValidation {
 		msgMap := fiber.Map{}
-		for _, e := range data.(validator.ValidationErrors) {
+		for _, e := range value.(validator.ValidationErrors) {
 			msgMap[e.Field()] = fiber.Map{
-				"required": fmt.Sprintf("%s is %s and not empty", e.Field(), e.Tag()),
+				"required": fmt.Sprintf(MessageText(c, localizations.CommonFieldIsRequiredAndNotEmpty), e.Field()),
 			}
 		}
 		return c.Status(http.StatusBadRequest).JSON(&Response{
@@ -63,30 +79,54 @@ func BadRequest(c *fiber.Ctx, data interface{}) error {
 
 	// Other error
 	return c.Status(http.StatusBadRequest).JSON(&Response{
-		Message: data,
+		Message: MessageText(c, value.(string)),
 	})
 }
 
-func NotFound(c *fiber.Ctx, data interface{}) error {
+func NotFound(c *fiber.Ctx, data ...any) error {
+	message := ""
+	if len(data) == 0 {
+		message = http.StatusText(http.StatusNotFound)
+	} else {
+		message = MessageText(c, data[0].(string))
+	}
 	return c.Status(http.StatusNotFound).JSON(&Response{
-		Message: data,
+		Message: message,
 	})
 }
 
-func NoContent(c *fiber.Ctx, data interface{}) error {
+func NoContent(c *fiber.Ctx, data ...any) error {
+	message := ""
+	if len(data) == 0 {
+		message = http.StatusText(http.StatusNoContent)
+	} else {
+		message = MessageText(c, data[0].(string))
+	}
 	return c.Status(http.StatusNoContent).JSON(&Response{
-		Message: data,
+		Message: message,
 	})
 }
 
-func Unauthorized(c *fiber.Ctx, data interface{}) error {
+func Unauthorized(c *fiber.Ctx, data ...any) error {
+	message := ""
+	if len(data) == 0 {
+		message = http.StatusText(http.StatusUnauthorized)
+	} else {
+		message = MessageText(c, data[0].(string))
+	}
 	return c.Status(http.StatusUnauthorized).JSON(&Response{
-		Message: data,
+		Message: message,
 	})
 }
 
-func Forbidden(c *fiber.Ctx, data interface{}) error {
+func Forbidden(c *fiber.Ctx, data ...any) error {
+	message := ""
+	if len(data) == 0 {
+		message = http.StatusText(http.StatusForbidden)
+	} else {
+		message = MessageText(c, data[0].(string))
+	}
 	return c.Status(http.StatusForbidden).JSON(&Response{
-		Message: data,
+		Message: message,
 	})
 }
