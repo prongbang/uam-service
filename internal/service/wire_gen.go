@@ -10,6 +10,7 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/prongbang/user-service/internal/service/database"
 	"github.com/prongbang/user-service/internal/service/uam"
+	"github.com/prongbang/user-service/internal/shared/auth"
 	"github.com/prongbang/user-service/internal/shared/role"
 	"github.com/prongbang/user-service/internal/shared/user"
 )
@@ -24,8 +25,13 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	roleRepository := role.NewRepository(roleDataSource)
 	roleUseCase := role.NewUseCase(roleRepository)
 	handler := role.NewHandler(useCase, roleUseCase)
+	authDataSource := auth.NewDataSource(dbDriver)
+	authRepository := auth.NewRepository(authDataSource)
+	authUseCase := auth.NewUseCase(authRepository)
+	authHandler := auth.NewHandler(authUseCase)
 	validate := role.NewValidate()
-	apiRouter := uam.NewRouter(handler, validate)
+	authValidate := auth.NewValidate()
+	apiRouter := uam.NewRouter(handler, authHandler, validate, authValidate)
 	serviceRouters := NewRouters(apiRouter)
 	serviceAPI := NewAPI(serviceRouters)
 	userServer := uam.NewServer(useCase)

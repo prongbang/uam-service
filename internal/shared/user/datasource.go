@@ -7,35 +7,35 @@ import (
 )
 
 type DataSource interface {
-	FindByUsername(username string) User
-	FindByEmail(email string) User
+	GetByUsername(username string) User
+	GetByEmail(email string) User
 }
 
 type dataSource struct {
 	Driver database.Drivers
 }
 
-func (d *dataSource) FindByUsername(username string) User {
+func (d *dataSource) GetByUsername(username string) User {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
 	item := User{}
 	err := db.NewSelect().Model(&item).Where("username = ?", username).Scan(ctx)
 	if err != nil {
-		fmt.Println("FindByUsername error:", err)
+		fmt.Println("GetByUsername error:", err)
 	}
 
 	return item
 }
 
-func (d *dataSource) FindByEmail(email string) User {
+func (d *dataSource) GetByEmail(email string) User {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
 	item := User{}
 	err := db.NewSelect().Model(&item).Where("email = ?", email).Scan(ctx)
 	if err != nil {
-		fmt.Println("FindByEmail error:", err)
+		fmt.Println("GetByEmail error:", err)
 	}
 
 	return item

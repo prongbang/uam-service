@@ -12,7 +12,7 @@ type repository struct {
 }
 
 func (r *repository) FindByUsername(username, password string) User {
-	u := r.Ds.FindByUsername(username)
+	u := r.Ds.GetByUsername(username)
 	if cryptox.VerifyPassword(u.Password, password) {
 
 	}
