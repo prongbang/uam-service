@@ -18,8 +18,17 @@ const (
 
 type Claims struct {
 	Exp   int64    `json:"exp"`
+	Iss   string   `json:"iss"`
 	Sub   string   `json:"sub"`
 	Roles []string `json:"roles"`
+}
+
+func GetKeyBytes() ([]byte, error) {
+	return HexToBytes(GetKey())
+}
+
+func GetKey() string {
+	return os.Getenv("JWE_SECRET")
 }
 
 func GenerateKey(keySize int) ([]byte, error) {

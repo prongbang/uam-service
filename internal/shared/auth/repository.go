@@ -12,13 +12,11 @@ type repository struct {
 }
 
 func (r *repository) GetByUsername(username string) user.User {
-	//TODO implement me
-	panic("implement me")
+	return r.Ds.GetByUsername(username)
 }
 
 func (r *repository) GetByEmail(email string) user.User {
-	//TODO implement me
-	panic("implement me")
+	return r.Ds.GetByEmail(email)
 }
 
 func NewRepository(ds DataSource) Repository {

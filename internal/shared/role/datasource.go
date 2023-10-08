@@ -16,6 +16,7 @@ type DataSource interface {
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
+	GetByUserIdList(userId string) []Role
 	Add(data *CreateRole) error
 	Update(data *UpdateRole) error
 	Delete(id string) error
@@ -140,6 +141,22 @@ func (d *dataSource) GetByName(name string) Role {
 		return rows[0]
 	}
 	return Role{}
+}
+
+func (d *dataSource) GetByUserIdList(userId string) []Role {
+	db := d.Driver.GetPqDB()
+	ctx := context.Background()
+
+	var rows []Role
+	err := db.NewSelect().
+		Model(&rows).
+		Where("r.user_id = ?", userId).
+		Scan(ctx)
+	if err != nil {
+		fmt.Println(err)
+		return []Role{}
+	}
+	return rows
 }
 
 func (d *dataSource) Add(data *CreateRole) error {

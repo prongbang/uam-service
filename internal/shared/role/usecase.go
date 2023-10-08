@@ -13,6 +13,8 @@ type UseCase interface {
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
 	GetByName(name string) Role
+	GetByUserIdList(userId string) []Role
+	GetByUserIdStringList(userId string) []string
 	Add(data *CreateRole) error
 	Update(data *UpdateRole) error
 	Delete(id string) error
@@ -48,6 +50,19 @@ func (u *useCase) GetById(id string) Role {
 
 func (u *useCase) GetByName(name string) Role {
 	return u.Repo.GetByName(name)
+}
+
+func (u *useCase) GetByUserIdList(userId string) []Role {
+	return u.Repo.GetByUserIdList(userId)
+}
+
+func (u *useCase) GetByUserIdStringList(userId string) []string {
+	roles := u.Repo.GetByUserIdList(userId)
+	list := []string{}
+	for _, i := range roles {
+		list = append(list, i.ID)
+	}
+	return list
 }
 
 func (u *useCase) Add(data *CreateRole) error {

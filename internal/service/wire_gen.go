@@ -27,7 +27,7 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	handler := role.NewHandler(useCase, roleUseCase)
 	authDataSource := auth.NewDataSource(dbDriver)
 	authRepository := auth.NewRepository(authDataSource)
-	authUseCase := auth.NewUseCase(authRepository)
+	authUseCase := auth.NewUseCase(authRepository, roleUseCase)
 	authHandler := auth.NewHandler(authUseCase)
 	validate := role.NewValidate()
 	authValidate := auth.NewValidate()

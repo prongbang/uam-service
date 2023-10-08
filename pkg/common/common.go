@@ -1,6 +1,9 @@
 package common
 
-import "reflect"
+import (
+	"reflect"
+	"regexp"
+)
 
 func Contains[T any](list []T, target T) bool {
 	for _, item := range list {
@@ -9,4 +12,13 @@ func Contains[T any](list []T, target T) bool {
 		}
 	}
 	return false
+}
+
+func IsEmail(email string) bool {
+	pattern := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	regex, err := regexp.Compile(pattern)
+	if err != nil {
+		return false
+	}
+	return regex.MatchString(email)
 }

@@ -1,14 +1,83 @@
 package auth
 
+import (
+	"errors"
+	"github.com/prongbang/user-service/internal/localizations"
+	"github.com/prongbang/user-service/internal/pkg/token"
+	"github.com/prongbang/user-service/internal/shared/role"
+	"github.com/prongbang/user-service/pkg/cryptox"
+	"time"
+)
+
 type UseCase interface {
+	Login(data Login) (Credential, error)
+	LoginWithEmail(data Login) (Credential, error)
+	LoginWithUsername(data Login) (Credential, error)
 }
 
 type useCase struct {
-	Repo Repository
+	Repo   Repository
+	RoleUc role.UseCase
 }
 
-func NewUseCase(repo Repository) UseCase {
+func (u *useCase) Login(data Login) (Credential, error) {
+	if data.Email != "" {
+		return u.LoginWithEmail(data)
+	}
+	return u.LoginWithUsername(data)
+}
+
+func (u *useCase) LoginWithEmail(data Login) (Credential, error) {
+	usr := u.Repo.GetByEmail(data.Email)
+	if usr.Password == "" {
+		return Credential{}, errors.New(localizations.CommonInvalidData)
+	}
+
+	valid := cryptox.VerifyPassword(data.Password, usr.Password)
+	if valid {
+		return u.GetCredentialByUserId(usr.ID)
+	}
+
+	return Credential{}, errors.New(localizations.CommonInvalidData)
+}
+
+func (u *useCase) GetCredentialByUserId(userId string) (Credential, error) {
+	roles := u.RoleUc.GetByUserIdStringList(userId)
+	payload := token.Claims{
+		Exp:   time.Now().AddDate(0, 0, 1).Unix(),
+		Sub:   userId,
+		Roles: roles,
+	}
+	key, _ := token.GetKeyBytes()
+	accessToken, err := token.New(payload, key)
+	if err != nil {
+		return Credential{}, errors.New(localizations.CommonInvalidData)
+	}
+
+	credential := Credential{
+		Token: accessToken,
+		Role:  roles,
+	}
+	return credential, nil
+}
+
+func (u *useCase) LoginWithUsername(data Login) (Credential, error) {
+	usr := u.Repo.GetByUsername(data.Username)
+	if usr.Password == "" {
+		return Credential{}, errors.New(localizations.CommonInvalidData)
+	}
+
+	valid := cryptox.VerifyPassword(data.Password, usr.Password)
+	if valid {
+		return u.GetCredentialByUserId(usr.ID)
+	}
+
+	return Credential{}, errors.New(localizations.CommonInvalidData)
+}
+
+func NewUseCase(repo Repository, roleUc role.UseCase) UseCase {
 	return &useCase{
-		Repo: repo,
+		Repo:   repo,
+		RoleUc: roleUc,
 	}
 }
