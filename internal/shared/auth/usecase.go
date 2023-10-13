@@ -2,10 +2,10 @@ package auth
 
 import (
 	"errors"
-	"github.com/prongbang/user-service/internal/localizations"
-	"github.com/prongbang/user-service/internal/pkg/token"
-	"github.com/prongbang/user-service/internal/shared/role"
-	"github.com/prongbang/user-service/pkg/cryptox"
+	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/pkg/token"
+	"github.com/prongbang/uam-service/internal/shared/role"
+	"github.com/prongbang/uam-service/pkg/cryptox"
 	"time"
 )
 
@@ -56,7 +56,7 @@ func (u *useCase) GetCredentialByUserId(userId string) (Credential, error) {
 
 	credential := Credential{
 		Token: accessToken,
-		Role:  roles,
+		Roles: roles,
 	}
 	return credential, nil
 }

@@ -8,11 +8,11 @@ package service
 
 import (
 	"github.com/casbin/casbin/v2"
-	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/service/uam"
-	"github.com/prongbang/user-service/internal/shared/auth"
-	"github.com/prongbang/user-service/internal/shared/role"
-	"github.com/prongbang/user-service/internal/shared/user"
+	"github.com/prongbang/uam-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/service/uam"
+	"github.com/prongbang/uam-service/internal/shared/auth"
+	"github.com/prongbang/uam-service/internal/shared/role"
+	"github.com/prongbang/uam-service/internal/shared/user"
 )
 
 // Injectors from wire.go:
@@ -34,8 +34,8 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	apiRouter := uam.NewRouter(handler, authHandler, validate, authValidate)
 	serviceRouters := NewRouters(apiRouter)
 	serviceAPI := NewAPI(serviceRouters)
-	userServer := uam.NewServer(useCase)
-	grpcListener := uam.NewListener(userServer)
+	uamServer := uam.NewServer(useCase, authUseCase)
+	grpcListener := uam.NewListener(uamServer)
 	grpc := NewGRPC(grpcListener)
 	serviceService := NewService(serviceAPI, grpc)
 	return serviceService

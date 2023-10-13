@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/prongbang/user-service/pkg/core"
+	"github.com/prongbang/uam-service/pkg/core"
 	"github.com/uptrace/bun"
 	"time"
 )

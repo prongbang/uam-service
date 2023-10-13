@@ -7,7 +7,7 @@
 package schema
 
 import (
-	"github.com/prongbang/user-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/service/database"
 )
 
 // Injectors from wire.go:

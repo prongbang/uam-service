@@ -2,7 +2,7 @@ package auth
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/user-service/pkg/core"
+	"github.com/prongbang/uam-service/pkg/core"
 )
 
 type Handler interface {

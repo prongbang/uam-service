@@ -2,8 +2,8 @@ package role
 
 import (
 	"errors"
-	"github.com/prongbang/user-service/internal/localizations"
-	"github.com/prongbang/user-service/pkg/common"
+	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/pkg/common"
 )
 
 type UseCase interface {

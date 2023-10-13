@@ -2,9 +2,9 @@ package role
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/user-service/internal/localizations"
-	"github.com/prongbang/user-service/internal/shared/user"
-	"github.com/prongbang/user-service/pkg/core"
+	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/shared/user"
+	"github.com/prongbang/uam-service/pkg/core"
 )
 
 type Handler interface {
@@ -22,7 +22,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 
 	data := h.RoleUc.GetById(b.ID)
 	if data.ID == "" {
-		return core.NotFound(c, localizations.CommonNotFoundData)
+		return core.NotFound(c, core.MessageText(c, localizations.CommonNotFoundData))
 	}
 
 	return core.Ok(c, data)
@@ -41,7 +41,7 @@ func (h *handler) Create(c *fiber.Ctx) error {
 	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.Add(&b); err != nil {
-		return core.BadRequest(c, err.Error())
+		return core.BadRequest(c, core.MessageText(c, err.Error()))
 	}
 
 	return core.Created(c, b)
@@ -52,7 +52,7 @@ func (h *handler) Update(c *fiber.Ctx) error {
 	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.Update(&b); err != nil {
-		return core.BadRequest(c, err.Error())
+		return core.BadRequest(c, core.MessageText(c, err.Error()))
 	}
 
 	return core.Ok(c, b)
@@ -65,10 +65,10 @@ func (h *handler) Delete(c *fiber.Ctx) error {
 	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.DeleteByRole(payload.Roles, b.ID); err != nil {
-		return core.BadRequest(c, localizations.CommonCannotDeletePleaseTryAgain)
+		return core.BadRequest(c, core.MessageText(c, localizations.CommonCannotDeletePleaseTryAgain))
 	}
 
-	return core.Ok(c, core.SuccessData(c, localizations.CommonDeleteSuccess))
+	return core.Ok(c, core.SuccessData(c, core.MessageText(c, localizations.CommonDeleteSuccess)))
 }
 
 func NewHandler(userUc user.UseCase, roleUc UseCase) Handler {

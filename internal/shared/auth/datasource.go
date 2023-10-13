@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"fmt"
-	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/shared/user"
+	"github.com/prongbang/uam-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/shared/user"
 )
 
 type DataSource interface {

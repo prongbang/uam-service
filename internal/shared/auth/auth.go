@@ -8,5 +8,5 @@ type Login struct {
 
 type Credential struct {
 	Token string   `json:"token"`
-	Role  []string `json:"roles"`
+	Roles []string `json:"roles"`
 }

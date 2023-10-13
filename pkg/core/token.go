@@ -2,7 +2,7 @@ package core
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/user-service/internal/pkg/token"
+	"github.com/prongbang/uam-service/internal/pkg/token"
 )
 
 type AccessToken struct {

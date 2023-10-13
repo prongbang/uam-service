@@ -1,9 +1,9 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Develop" type="GoApplicationRunConfiguration" factoryName="Go Application">
-    <module name="user-service" />
+    <module name="uam-service" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />
-    <package value="github.com/prongbang/user-service/cmd/uam" />
+    <package value="github.com/prongbang/uam-service/cmd/uam" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/cmd/uam/main.go" />
     <method v="2" />

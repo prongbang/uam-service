@@ -6,11 +6,11 @@ package service
 import (
 	"github.com/casbin/casbin/v2"
 	"github.com/google/wire"
-	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/service/uam"
-	"github.com/prongbang/user-service/internal/shared/auth"
-	"github.com/prongbang/user-service/internal/shared/role"
-	"github.com/prongbang/user-service/internal/shared/user"
+	"github.com/prongbang/uam-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/service/uam"
+	"github.com/prongbang/uam-service/internal/shared/auth"
+	"github.com/prongbang/uam-service/internal/shared/role"
+	"github.com/prongbang/uam-service/internal/shared/user"
 )
 
 func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {

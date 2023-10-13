@@ -1,6 +1,6 @@
 package service
 
-import "github.com/prongbang/user-service/internal/service/uam"
+import "github.com/prongbang/uam-service/internal/service/uam"
 
 type GRPC interface {
 	Register()

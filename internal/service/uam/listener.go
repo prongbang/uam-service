@@ -1,7 +1,6 @@
 package uam
 
 import (
-	"github.com/prongbang/user-service/internal/shared/user"
 	"log"
 	"net"
 
@@ -16,7 +15,7 @@ type GRPCListener interface {
 }
 
 type gRPCListener struct {
-	UserServer user.UserServer
+	UamServer UamServer
 }
 
 // Serve implements GRPCListener.
@@ -27,7 +26,7 @@ func (l *gRPCListener) Serve() {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-		user.RegisterUserServer(s, l.UserServer)
+		RegisterUamServer(s, l.UamServer)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
@@ -38,8 +37,8 @@ func (l *gRPCListener) Serve() {
 	}()
 }
 
-func NewListener(userServer user.UserServer) GRPCListener {
+func NewListener(uamServer UamServer) GRPCListener {
 	return &gRPCListener{
-		UserServer: userServer,
+		UamServer: uamServer,
 	}
 }

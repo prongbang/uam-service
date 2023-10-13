@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/prongbang/user-service/internal/localizations"
-	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/pkg/core"
+	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/service/database"
+	"github.com/prongbang/uam-service/pkg/core"
 )
 
 type DataSource interface {

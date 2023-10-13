@@ -5,7 +5,7 @@ package schema
 
 import (
 	"github.com/google/wire"
-	"github.com/prongbang/user-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/service/database"
 )
 
 func New(dbDriver database.Drivers) Schema {

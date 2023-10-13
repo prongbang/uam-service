@@ -2,7 +2,7 @@ package cryptox_test
 
 import (
 	"fmt"
-	"github.com/prongbang/user-service/pkg/cryptox"
+	"github.com/prongbang/uam-service/pkg/cryptox"
 	"testing"
 )
 

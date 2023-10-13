@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/prongbang/user-service/internal/service/uam"
-	"github.com/prongbang/user-service/pkg/core"
+	"github.com/prongbang/uam-service/internal/service/uam"
+	"github.com/prongbang/uam-service/pkg/core"
 )
 
 type Routers interface {

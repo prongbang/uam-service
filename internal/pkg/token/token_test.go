@@ -2,7 +2,7 @@ package token_test
 
 import (
 	"fmt"
-	"github.com/prongbang/user-service/internal/pkg/token"
+	"github.com/prongbang/uam-service/internal/pkg/token"
 	"testing"
 	"time"
 )

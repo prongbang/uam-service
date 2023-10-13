@@ -3,7 +3,7 @@ package schema
 import (
 	"context"
 	"fmt"
-	"github.com/prongbang/user-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/service/database"
 	"github.com/uptrace/bun"
 	"time"
 )

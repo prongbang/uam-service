@@ -2,10 +2,10 @@ package main
 
 import (
 	_ "github.com/prongbang/goenv"
-	"github.com/prongbang/user-service/internal/pkg/casbinx"
-	"github.com/prongbang/user-service/internal/service"
-	"github.com/prongbang/user-service/internal/service/database"
-	"github.com/prongbang/user-service/internal/service/schema"
+	"github.com/prongbang/uam-service/internal/pkg/casbinx"
+	"github.com/prongbang/uam-service/internal/service"
+	"github.com/prongbang/uam-service/internal/service/database"
+	"github.com/prongbang/uam-service/internal/service/schema"
 )
 
 func main() {

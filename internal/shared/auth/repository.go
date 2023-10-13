@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/prongbang/user-service/internal/shared/user"
+import "github.com/prongbang/uam-service/internal/shared/user"
 
 type Repository interface {
 	GetByUsername(username string) user.User
