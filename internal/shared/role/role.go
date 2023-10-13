@@ -39,7 +39,7 @@ type DelByIdRequest struct {
 }
 
 type Filter struct {
-	core.Filter
+	core.Params
 }
 
 type Permission struct {

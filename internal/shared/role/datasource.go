@@ -31,7 +31,7 @@ func (d *dataSource) Count() int64 {
 	ctx := context.Background()
 
 	var id int64 = 0
-	err := db.NewRaw("SELECT count(id) FROM roless").Scan(ctx, &id)
+	err := db.NewRaw("SELECT count(id) FROM roles").Scan(ctx, &id)
 	if err == nil {
 		return id
 	}
@@ -42,7 +42,7 @@ func (d *dataSource) GetList(filter Filter) []Role {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	sql := "SELECT id, name, level FROM roless LIMIT ? OFFSET ?"
+	sql := "SELECT id, name, level FROM roles LIMIT ? OFFSET ?"
 	var rows []Role
 	err := db.NewRaw(sql, filter.LimitNo, filter.OffsetNo).Scan(ctx, &rows)
 	if err != nil {
