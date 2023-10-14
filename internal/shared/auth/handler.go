@@ -19,7 +19,7 @@ func (h *handler) Login(c *fiber.Ctx) error {
 
 	data, err := h.Uc.Login(b)
 	if err != nil {
-		return core.Unauthorized(c, err.Error())
+		return core.Unauthorized(c, core.MessageText(c, err.Error()))
 	}
 
 	return core.Ok(c, data)

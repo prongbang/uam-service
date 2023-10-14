@@ -150,7 +150,10 @@ func (d *dataSource) GetByUserIdList(userId string) []Role {
 	var rows []Role
 	err := db.NewSelect().
 		Model(&rows).
-		Where("r.user_id = ?", userId).
+		ColumnExpr("r.*").
+		Join("JOIN user_roles AS ur").
+		JoinOn("ur.role_id = r.id").
+		Where("ur.user_id = ?", userId).
 		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
