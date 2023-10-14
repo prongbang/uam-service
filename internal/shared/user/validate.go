@@ -19,10 +19,32 @@ type validate struct {
 }
 
 func (v *validate) UpdatePassword(c *fiber.Ctx) error {
+	b := Password{}
+	e := c.BodyParser(&b)
+	if e != nil || !core.IsUuid(&b.UserID) || len(b.NewPassword) < 8 {
+		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+	}
+
+	vld := validator.New()
+	if err := vld.Struct(b); err != nil {
+		return core.BadRequest(c, err)
+	}
+
 	return c.Next()
 }
 
 func (v *validate) UpdatePasswordMe(c *fiber.Ctx) error {
+	b := MyPassword{}
+	e := c.BodyParser(&b)
+	if e != nil || len(b.NewPassword) < 8 {
+		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+	}
+
+	vld := validator.New()
+	if err := vld.Struct(b); err != nil {
+		return core.BadRequest(c, err)
+	}
+
 	return c.Next()
 }
 

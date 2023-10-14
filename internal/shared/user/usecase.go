@@ -1,10 +1,12 @@
 package user
 
 import (
+	"errors"
 	"github.com/casbin/casbin/v2"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/core"
+	"github.com/prongbang/uam-service/pkg/cryptox"
 	"time"
 )
 
@@ -84,7 +86,11 @@ func (u *useCase) Update(data *UpdateUser) *core.Error {
 }
 
 func (u *useCase) UpdatePassword(data *Password) error {
-	return u.Repo.UpdatePassword(data.UserID, data.NewPassword)
+	usr := u.GetById(data.UserID)
+	if core.IsUuid(usr.ID) && cryptox.VerifyPassword(data.CurrentPassword, usr.Password) {
+		return u.Repo.UpdatePassword(data.UserID, data.NewPassword)
+	}
+	return errors.New(localizations.CommonInvalidData)
 }
 
 func (u *useCase) UpdateLastLogin(userId string) error {

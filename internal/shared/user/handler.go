@@ -18,11 +18,26 @@ type handler struct {
 }
 
 func (h *handler) UpdatePassword(c *fiber.Ctx) error {
-	return c.Next()
+	body := Password{}
+	_ = c.BodyParser(&body)
+
+	if err := h.UserUc.UpdatePassword(&body); err != nil {
+		return core.BadRequest(c, core.MessageText(c, err.Error()))
+	}
+	return core.Ok(c, nil)
 }
 
 func (h *handler) UpdatePasswordMe(c *fiber.Ctx) error {
-	return c.Next()
+	body := Password{}
+	_ = c.BodyParser(&body)
+
+	payload := core.Payload(c)
+	body.UserID = payload.Sub
+
+	if err := h.UserUc.UpdatePassword(&body); err != nil {
+		return core.BadRequest(c, core.MessageText(c, err.Error()))
+	}
+	return core.Ok(c, nil)
 }
 
 func (h *handler) GetByMe(c *fiber.Ctx) error {

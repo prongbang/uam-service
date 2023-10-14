@@ -62,9 +62,15 @@ type UpdateUser struct {
 }
 
 type Password struct {
-	UserID          string `json:"id"`
-	CurrentPassword string `json:"currentPassword" validate:"required"`
+	UserID          string `json:"userId" validate:"required"`
 	NewPassword     string `json:"newPassword" validate:"required"`
+	CurrentPassword string `json:"currentPassword" validate:"required"`
+}
+
+type MyPassword struct {
+	UserID          string `json:"userId"`
+	NewPassword     string `json:"newPassword" validate:"required"`
+	CurrentPassword string `json:"currentPassword" validate:"required"`
 }
 
 type Params struct {
