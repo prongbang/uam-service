@@ -22,7 +22,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 
 	data := h.RoleUc.GetById(b.ID)
 	if data.ID == "" {
-		return core.NotFound(c, core.MessageText(c, localizations.CommonNotFoundData))
+		return core.NotFound(c)
 	}
 
 	return core.Ok(c, data)

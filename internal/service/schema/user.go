@@ -19,7 +19,7 @@ type User struct {
 	LastName  *string   `json:"last_name,omitempty"`
 	Avatar    *string   `json:"avatar,omitempty"`
 	Mobile    *string   `json:"mobile,omitempty"`
-	Flag      int       `json:"flag"`
+	Flag      int       `json:"flag" bun:",default:1"`
 	LastLogin time.Time `json:"last_login"`
 	CreatedAt time.Time `json:"created_at" bun:",default:current_timestamp"`
 	UpdatedAt time.Time `json:"updated_at" bun:",default:current_timestamp"`

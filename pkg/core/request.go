@@ -9,6 +9,10 @@ type PagingRequest struct {
 	Limit int `json:"limit"`
 }
 
+func (p PagingRequest) Invalid() bool {
+	return p.Page <= 0 || (p.Limit > 0 && p.Limit > 100)
+}
+
 func PagingBody(c *fiber.Ctx, limit ...int) PagingRequest {
 	body := PagingRequest{}
 	if err := c.BodyParser(&body); err != nil {

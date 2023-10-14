@@ -30,7 +30,7 @@ func (h *handler) GetByMe(c *fiber.Ctx) error {
 
 	data := h.UserUc.GetById(payload.Sub)
 	if *data.ID == "" {
-		return core.NotFound(c, core.MessageText(c, localizations.CommonNotFoundData))
+		return core.NotFound(c)
 	}
 
 	// Reset sensitive data
@@ -45,7 +45,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 
 	data := h.UserUc.GetById(body.ID)
 	if *data.ID == "" {
-		return core.NotFound(c, core.MessageText(c, localizations.CommonNotFoundData))
+		return core.NotFound(c)
 	}
 
 	// Reset sensitive data
@@ -71,18 +71,51 @@ func (h *handler) GetList(c *fiber.Ctx) error {
 }
 
 func (h *handler) Create(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+	b := CreateUser{}
+	_ = c.BodyParser(&b)
+
+	if err := h.UserUc.Add(&b); err != nil {
+		return core.BadRequest(c, *err)
+	}
+
+	usr := h.UserUc.GetById(*b.ID)
+
+	// Reset sensitive data
+	usr.Password = ""
+
+	return core.Created(c, usr)
 }
 
 func (h *handler) Update(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+	body := UpdateUser{}
+	_ = c.BodyParser(&body)
+
+	if usr := h.UserUc.GetById(body.ID); core.IsUuid(usr.ID) {
+		if err := h.UserUc.Update(&body); err != nil {
+			return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		}
+		usr = h.UserUc.GetById(body.ID)
+
+		// Reset sensitive data
+		usr.Password = ""
+
+		return core.Ok(c, usr)
+	}
+
+	return core.NotFound(c)
 }
 
 func (h *handler) Delete(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+	body := DeleteByIdRequest{}
+	_ = c.BodyParser(&body)
+
+	if usr := h.UserUc.GetById(body.ID); usr.ID != nil && *usr.ID == body.ID {
+		if err := h.UserUc.Delete(body.ID); err != nil {
+			return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		}
+		return core.Ok(c, nil)
+	}
+	return core.NotFound(c)
 }
 
 func NewHandler(userUc UseCase) Handler {

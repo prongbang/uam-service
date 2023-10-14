@@ -20,6 +20,8 @@ const (
 	CommonCannotUpdateData           = "common_cannot_update_data"
 	CommonCannotDeleteData           = "common_cannot_delete_data"
 	CommonThereIsNoDataUpdate        = "common_there_is_no_data_update"
+	CommonPagingInvalid              = "common_paging_invalid"
+	CommonDataDuplicated             = "common_data_duplicated"
 )
 
 var Localizes = Localizations{
@@ -34,6 +36,8 @@ var Localizes = Localizations{
 		CommonCannotUpdateData:           "Cannot update data",
 		CommonCannotDeleteData:           "Cannot delete data",
 		CommonThereIsNoDataUpdate:        "There is no data to update",
+		CommonPagingInvalid:              "Page or Limit data invalid",
+		CommonDataDuplicated:             "Some of the data is duplicated",
 	},
 	Th: Localization{
 		CommonInvalidData:                "ข้อมูลไม่ถูกต้อง",
@@ -46,6 +50,8 @@ var Localizes = Localizations{
 		CommonCannotUpdateData:           "ไม่สามารถอัปเดตข้อมูลได้",
 		CommonCannotDeleteData:           "ไม่สามารถลบข้อมูลได้",
 		CommonThereIsNoDataUpdate:        "ไม่มีข้อมูลที่จะอัปเดต",
+		CommonPagingInvalid:              "จำนวนหน้าและการจำกัดข้อมูลไม่ถูกต้อง",
+		CommonDataDuplicated:             "ข้อมูลบางส่วนซ้ำกัน",
 	},
 }
 

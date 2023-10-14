@@ -9,9 +9,7 @@ const (
 	StatusForbidden                = "CLI403"
 	StatusNotFound                 = "CLI404"
 	StatusDataNotFound             = "DTA001"
-	StatusDuplicatedEmail          = "DUP001"
-	StatusDuplicatedUsername       = "DUP002"
-	StatusDuplicatedData           = "DUP003"
+	StatusDataDuplicated           = "DUP001"
 	StatusDatabaseExecuteFailed    = "DTB001"
 	StatusDatabaseNoDataUpdate     = "DTB002"
 	StatusDatabaseQueryFailed      = "DTB003"
@@ -28,4 +26,5 @@ const (
 	StatusNotifyFTPFail            = "NTF001"
 	StatusNotifyEmailFail          = "NTF002"
 	StatusNotifyLineFail           = "NTF003"
+	StatusDataInvalid              = "IVL001"
 )

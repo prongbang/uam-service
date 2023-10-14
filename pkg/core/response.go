@@ -7,6 +7,7 @@ import (
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/pkg/code"
 	"net/http"
+	"strings"
 )
 
 type Error struct {
@@ -39,7 +40,7 @@ func MessageText(c *fiber.Ctx, key string) string {
 	return localizations.Translate(locale, key)
 }
 
-func Ok(c *fiber.Ctx, data interface{}) error {
+func Ok(c *fiber.Ctx, data any) error {
 	return c.Status(http.StatusOK).JSON(&Response{
 		Code:    fmt.Sprintf("%d", http.StatusOK),
 		Message: http.StatusText(http.StatusOK),
@@ -75,8 +76,9 @@ func BadRequest(c *fiber.Ctx, data any) error {
 	if _, okValidation := data.(validator.ValidationErrors); okValidation {
 		cause := fiber.Map{}
 		for _, e := range data.(validator.ValidationErrors) {
-			cause[e.Field()] = fiber.Map{
-				"required": fmt.Sprintf(MessageText(c, localizations.CommonFieldIsRequiredAndNotEmpty), e.Field()),
+			field := fmt.Sprint(strings.ToLower(e.Field()[:1]), e.Field()[1:])
+			cause[field] = fiber.Map{
+				"required": fmt.Sprintf(MessageText(c, localizations.CommonFieldIsRequiredAndNotEmpty), field),
 			}
 		}
 		return c.Status(http.StatusBadRequest).JSON(&Response{
@@ -90,7 +92,7 @@ func BadRequest(c *fiber.Ctx, data any) error {
 	if err, okError := data.(Error); okError {
 		return c.Status(http.StatusBadRequest).JSON(&Response{
 			Code:    err.Code,
-			Message: err.Message,
+			Message: MessageText(c, err.Message),
 		})
 	}
 
@@ -101,10 +103,10 @@ func BadRequest(c *fiber.Ctx, data any) error {
 	})
 }
 
-func NotFound(c *fiber.Ctx, message string) error {
+func NotFound(c *fiber.Ctx) error {
 	return c.Status(http.StatusNotFound).JSON(&Response{
 		Code:    code.StatusNotFound,
-		Message: message,
+		Message: MessageText(c, localizations.CommonNotFoundData),
 	})
 }
 

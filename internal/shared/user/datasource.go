@@ -17,8 +17,10 @@ type DataSource interface {
 	GetList(params Params) []User
 	GetListByUnderUserId(userId string, params Params) []User
 	GetById(id string) User
-	Add(data *User) error
-	Update(data *User) error
+	GetByEmail(email string) User
+	GetByUsername(username string) User
+	Add(data *CreateUser) error
+	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
 	Delete(id string) error
 	DeleteTx(id string) (*bun.Tx, error)
@@ -149,7 +151,15 @@ func (d *dataSource) GetById(id string) User {
 	ctx := context.Background()
 
 	var rows []User
-	err := db.NewSelect().Model(&rows).Where("u.id = ?", id).Limit(1).Scan(ctx)
+	err := db.NewSelect().
+		Model(&rows).
+		ColumnExpr("u.*").
+		ColumnExpr("r.id AS role_id, r.name AS role_name").
+		Join("LEFT JOIN user_roles AS ur").JoinOn("ur.user_id = u.id").
+		Join("LEFT JOIN roles AS r").JoinOn("r.id = ur.role_id").
+		Where("u.id = ?", id).
+		Limit(1).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
 		return User{}
@@ -160,9 +170,44 @@ func (d *dataSource) GetById(id string) User {
 	return User{}
 }
 
-func (d *dataSource) Add(data *User) error {
+func (d *dataSource) GetByEmail(email string) User {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
+
+	var rows []User
+	err := db.NewSelect().Model(&rows).Where("u.email = ?", email).Limit(1).Scan(ctx)
+	if err != nil {
+		fmt.Println(err)
+		return User{}
+	}
+	if len(rows) > 0 {
+		return rows[0]
+	}
+	return User{}
+}
+
+func (d *dataSource) GetByUsername(username string) User {
+	db := d.Driver.GetPqDB()
+	ctx := context.Background()
+
+	var rows []User
+	err := db.NewSelect().Model(&rows).Where("u.username = ?", username).Limit(1).Scan(ctx)
+	if err != nil {
+		fmt.Println(err)
+		return User{}
+	}
+	if len(rows) > 0 {
+		return rows[0]
+	}
+	return User{}
+}
+
+func (d *dataSource) Add(data *CreateUser) error {
+	db := d.Driver.GetPqDB()
+	ctx := context.Background()
+
+	// Hash password
+	data.Password = cryptox.HashPassword(data.Password)
 
 	id := new(string)
 	_ = db.NewInsert().Model(data).Returning("id").Scan(ctx, id)
@@ -173,7 +218,7 @@ func (d *dataSource) Add(data *User) error {
 	return errors.New(localizations.CommonCannotAddData)
 }
 
-func (d *dataSource) Update(data *User) error {
+func (d *dataSource) Update(data *UpdateUser) error {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
@@ -202,7 +247,7 @@ func (d *dataSource) Update(data *User) error {
 	if data.Flag > core.FlagIgnore {
 		value["flag"] = data.Flag
 	}
-	if !data.LastLogin.IsZero() {
+	if data.LastLogin != nil && !data.LastLogin.IsZero() {
 		value["last_login"] = data.LastLogin
 	}
 	if len(value) == 0 {

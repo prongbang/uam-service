@@ -6,8 +6,10 @@ type Repository interface {
 	GetList(params Params) []User
 	GetListByUnderUserId(userId string, params Params) []User
 	GetById(id string) User
-	Add(data *User) error
-	Update(data *User) error
+	GetByEmail(email string) User
+	GetByUsername(username string) User
+	Add(data *CreateUser) error
+	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
 	Delete(id string) error
 }
@@ -36,11 +38,19 @@ func (r *repository) GetById(id string) User {
 	return r.Ds.GetById(id)
 }
 
-func (r *repository) Add(data *User) error {
+func (r *repository) GetByEmail(email string) User {
+	return r.Ds.GetByEmail(email)
+}
+
+func (r *repository) GetByUsername(username string) User {
+	return r.Ds.GetByUsername(username)
+}
+
+func (r *repository) Add(data *CreateUser) error {
 	return r.Ds.Add(data)
 }
 
-func (r *repository) Update(data *User) error {
+func (r *repository) Update(data *UpdateUser) error {
 	return r.Ds.Update(data)
 }
 

@@ -2,6 +2,9 @@ package user
 
 import (
 	"github.com/casbin/casbin/v2"
+	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/pkg/code"
+	"github.com/prongbang/uam-service/pkg/core"
 	"time"
 )
 
@@ -9,8 +12,8 @@ type UseCase interface {
 	Count(params Params) int64
 	GetList(params Params) []User
 	GetById(id string) User
-	Add(data *User) error
-	Update(data *User) error
+	Add(data *CreateUser) *core.Error
+	Update(data *UpdateUser) *core.Error
 	UpdatePassword(data *Password) error
 	UpdateLastLogin(userId string) error
 	Delete(id string) error
@@ -33,12 +36,51 @@ func (u *useCase) GetById(id string) User {
 	return u.Repo.GetById(id)
 }
 
-func (u *useCase) Add(data *User) error {
-	return u.Repo.Add(data)
+func (u *useCase) Add(data *CreateUser) *core.Error {
+	if data.Email != "" {
+		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
+			return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+		}
+	}
+	if data.Username != "" {
+		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(rs.ID) {
+			return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+		}
+	}
+
+	err := u.Repo.Add(data)
+	if err != nil {
+		return &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
+	}
+
+	return nil
 }
 
-func (u *useCase) Update(data *User) error {
-	return u.Repo.Update(data)
+func (u *useCase) Update(data *UpdateUser) *core.Error {
+	if data.Email != "" {
+		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
+			if *rs.ID != data.ID {
+				return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+			}
+		}
+	}
+	if data.Username != "" {
+		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(rs.ID) {
+			if *rs.ID != data.ID {
+				return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+			}
+		}
+	}
+
+	// Reset sensitive data
+	data.Password = ""
+
+	err := u.Repo.Update(data)
+	if err != nil {
+		return &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
+	}
+
+	return nil
 }
 
 func (u *useCase) UpdatePassword(data *Password) error {
@@ -47,8 +89,8 @@ func (u *useCase) UpdatePassword(data *Password) error {
 
 func (u *useCase) UpdateLastLogin(userId string) error {
 	lastLogin := time.Now()
-	return u.Repo.Update(&User{
-		ID:        &userId,
+	return u.Repo.Update(&UpdateUser{
+		ID:        userId,
 		LastLogin: &lastLogin,
 	})
 }
