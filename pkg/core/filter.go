@@ -1,6 +1,6 @@
 package core
 
 type Params struct {
-	OffsetNo int64 `json:"page"`
-	LimitNo  int64 `json:"limit"`
+	OffsetNo int `json:"page"`
+	LimitNo  int `json:"limit"`
 }

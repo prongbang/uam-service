@@ -33,7 +33,8 @@ func (d *dataSource) Count(params Params) int64 {
 	ctx := context.Background()
 
 	var count int64 = 0
-	err := db.NewRaw("SELECT count(id) FROM roles").Scan(ctx, &count)
+	sql := "SELECT count(id) FROM users WHERE flag = ?"
+	err := db.NewRaw(sql, core.FlagAvailable).Scan(ctx, &count)
 	if err == nil {
 		return count
 	}
@@ -84,9 +85,10 @@ func (d *dataSource) GetList(params Params) []User {
 		u.updated_at,
 		r.id AS role_id,
 		r.name AS role_name
-	FROM users u ON u.flag = ?
+	FROM users u
 	INNER JOIN user_roles ur ON ur.user_id = u.id
 	INNER JOIN roles r ON ur.role_id = r.id
+	WHERE u.flag = ?
 	LIMIT ? OFFSET ?`
 	var rows []User
 	err := db.NewRaw(sql, core.FlagAvailable, params.LimitNo, params.OffsetNo).Scan(ctx, &rows)
@@ -185,11 +187,11 @@ func (d *dataSource) Update(data *User) error {
 	if data.Password != "" {
 		value["password"] = cryptox.HashPassword(data.Password)
 	}
-	if data.Firstname != "" {
-		value["first_name"] = data.Firstname
+	if data.FirstName != "" {
+		value["first_name"] = data.FirstName
 	}
-	if data.Lastname != "" {
-		value["last_name"] = data.Lastname
+	if data.LastName != "" {
+		value["last_name"] = data.LastName
 	}
 	if data.Avatar != "" {
 		value["avatar"] = data.Avatar

@@ -1,6 +1,9 @@
 package user
 
-import "github.com/casbin/casbin/v2"
+import (
+	"github.com/casbin/casbin/v2"
+	"time"
+)
 
 type UseCase interface {
 	Count(params Params) int64
@@ -11,7 +14,6 @@ type UseCase interface {
 	UpdatePassword(data *Password) error
 	UpdateLastLogin(userId string) error
 	Delete(id string) error
-	IsUserUnder(userId1 string, userId2 string) bool
 }
 
 type useCase struct {
@@ -20,48 +22,39 @@ type useCase struct {
 }
 
 func (u *useCase) Count(params Params) int64 {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.Count(params)
 }
 
 func (u *useCase) GetList(params Params) []User {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.GetList(params)
 }
 
 func (u *useCase) GetById(id string) User {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.GetById(id)
 }
 
 func (u *useCase) Add(data *User) error {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.Add(data)
 }
 
 func (u *useCase) Update(data *User) error {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.Update(data)
 }
 
 func (u *useCase) UpdatePassword(data *Password) error {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.UpdatePassword(data.UserID, data.NewPassword)
 }
 
 func (u *useCase) UpdateLastLogin(userId string) error {
-	//TODO implement me
-	panic("implement me")
+	lastLogin := time.Now()
+	return u.Repo.Update(&User{
+		ID:        &userId,
+		LastLogin: &lastLogin,
+	})
 }
 
 func (u *useCase) Delete(id string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (u *useCase) IsUserUnder(userId1 string, userId2 string) bool {
-	//TODO implement me
-	panic("implement me")
+	return u.Repo.Delete(id)
 }
 
 func NewUseCase(repo Repository, enforce *casbin.Enforcer) UseCase {

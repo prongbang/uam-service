@@ -55,8 +55,19 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 }
 
 func (h *handler) GetList(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+	paging := core.PagingBody(c)
+
+	params := Params{}
+
+	getCount := func() int64 { return h.UserUc.Count(params) }
+
+	getData := func(limit int, offset int) any {
+		params.LimitNo = paging.Limit
+		params.OffsetNo = offset
+		return h.UserUc.GetList(params)
+	}
+
+	return core.Ok(c, core.Pagination(paging.Page, paging.Limit, getCount, getData))
 }
 
 func (h *handler) Create(c *fiber.Ctx) error {

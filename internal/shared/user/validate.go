@@ -16,13 +16,11 @@ type validate struct {
 }
 
 func (v *validate) UpdatePassword(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+	return c.Next()
 }
 
 func (v *validate) UpdatePasswordMe(c *fiber.Ctx) error {
-	//TODO implement me
-	panic("implement me")
+	return c.Next()
 }
 
 func (v *validate) GetByMe(c *fiber.Ctx) error {

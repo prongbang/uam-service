@@ -5,6 +5,7 @@ import (
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/pkg/token"
 	"github.com/prongbang/uam-service/internal/shared/role"
+	"github.com/prongbang/uam-service/internal/shared/user"
 	"github.com/prongbang/uam-service/pkg/cryptox"
 	"time"
 )
@@ -18,6 +19,7 @@ type UseCase interface {
 type useCase struct {
 	Repo   Repository
 	RoleUc role.UseCase
+	UserUc user.UseCase
 }
 
 func (u *useCase) Login(data Login) (Credential, error) {
@@ -35,6 +37,8 @@ func (u *useCase) LoginWithEmail(data Login) (Credential, error) {
 
 	valid := cryptox.VerifyPassword(data.Password, usr.Password)
 	if valid {
+		_ = u.UserUc.UpdateLastLogin(*usr.ID)
+
 		return u.GetCredentialByUserId(*usr.ID)
 	}
 
@@ -69,15 +73,18 @@ func (u *useCase) LoginWithUsername(data Login) (Credential, error) {
 
 	valid := cryptox.VerifyPassword(data.Password, usr.Password)
 	if valid {
+		_ = u.UserUc.UpdateLastLogin(*usr.ID)
+
 		return u.GetCredentialByUserId(*usr.ID)
 	}
 
 	return Credential{}, errors.New(localizations.CommonInvalidData)
 }
 
-func NewUseCase(repo Repository, roleUc role.UseCase) UseCase {
+func NewUseCase(repo Repository, roleUc role.UseCase, userUc user.UseCase) UseCase {
 	return &useCase{
 		Repo:   repo,
 		RoleUc: roleUc,
+		UserUc: userUc,
 	}
 }
