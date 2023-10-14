@@ -11,8 +11,10 @@ import (
 	"github.com/prongbang/uam-service/internal/service/database"
 	"github.com/prongbang/uam-service/internal/service/uam"
 	"github.com/prongbang/uam-service/internal/shared/auth"
+	"github.com/prongbang/uam-service/internal/shared/forgot"
 	"github.com/prongbang/uam-service/internal/shared/role"
 	"github.com/prongbang/uam-service/internal/shared/user"
+	"github.com/prongbang/uam-service/internal/shared/user_role"
 )
 
 // Injectors from wire.go:
@@ -30,10 +32,20 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	authUseCase := auth.NewUseCase(authRepository, roleUseCase, useCase)
 	authHandler := auth.NewHandler(authUseCase)
 	userHandler := user.NewHandler(useCase)
+	forgotDataSource := forgot.NewDataSource(dbDriver)
+	forgotRepository := forgot.NewRepository(forgotDataSource)
+	forgotUseCase := forgot.NewUseCase(forgotRepository)
+	forgotHandler := forgot.NewHandler(forgotUseCase)
+	user_roleDataSource := user_role.NewDataSource(dbDriver)
+	user_roleRepository := user_role.NewRepository(user_roleDataSource)
+	user_roleUseCase := user_role.NewUseCase(user_roleRepository)
+	user_roleHandler := user_role.NewHandler(user_roleUseCase)
 	validate := role.NewValidate()
 	authValidate := auth.NewValidate()
 	userValidate := user.NewValidate()
-	apiRouter := uam.NewRouter(handler, authHandler, userHandler, validate, authValidate, userValidate)
+	forgotValidate := forgot.NewValidate()
+	user_roleValidate := user_role.NewValidate()
+	apiRouter := uam.NewRouter(handler, authHandler, userHandler, forgotHandler, user_roleHandler, validate, authValidate, userValidate, forgotValidate, user_roleValidate)
 	serviceRouters := NewRouters(apiRouter)
 	serviceAPI := NewAPI(serviceRouters)
 	uamServer := uam.NewServer(useCase, authUseCase)

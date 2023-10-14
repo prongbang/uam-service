@@ -3,8 +3,10 @@ package uam
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/uam-service/internal/shared/auth"
+	"github.com/prongbang/uam-service/internal/shared/forgot"
 	"github.com/prongbang/uam-service/internal/shared/role"
 	"github.com/prongbang/uam-service/internal/shared/user"
+	"github.com/prongbang/uam-service/internal/shared/user_role"
 	"github.com/prongbang/uam-service/pkg/core"
 )
 
@@ -13,12 +15,16 @@ type APIRouter interface {
 }
 
 type apiRouter struct {
-	RoleHandle   role.Handler
-	AuthHandle   auth.Handler
-	UserHandle   user.Handler
-	RoleValidate role.Validate
-	AuthValidate auth.Validate
-	UserValidate user.Validate
+	RoleHandle       role.Handler
+	AuthHandle       auth.Handler
+	UserHandle       user.Handler
+	ForgotHandle     forgot.Handler
+	UserRoleHandle   user_role.Handler
+	RoleValidate     role.Validate
+	AuthValidate     auth.Validate
+	UserValidate     user.Validate
+	ForgotValidate   forgot.Validate
+	UserRoleValidate user_role.Validate
 }
 
 // Initial implements APIRouter.
@@ -48,16 +54,24 @@ func NewRouter(
 	roleHandle role.Handler,
 	authHandle auth.Handler,
 	userHandle user.Handler,
+	forgotHandle forgot.Handler,
+	userRoleHandle user_role.Handler,
 	roleValidate role.Validate,
 	authValidate auth.Validate,
 	userValidate user.Validate,
+	forgotValidate forgot.Validate,
+	userRoleValidate user_role.Validate,
 ) APIRouter {
 	return &apiRouter{
-		RoleHandle:   roleHandle,
-		AuthHandle:   authHandle,
-		UserHandle:   userHandle,
-		RoleValidate: roleValidate,
-		AuthValidate: authValidate,
-		UserValidate: userValidate,
+		RoleHandle:       roleHandle,
+		AuthHandle:       authHandle,
+		UserHandle:       userHandle,
+		ForgotHandle:     forgotHandle,
+		UserRoleHandle:   userRoleHandle,
+		RoleValidate:     roleValidate,
+		AuthValidate:     authValidate,
+		UserValidate:     userValidate,
+		ForgotValidate:   forgotValidate,
+		UserRoleValidate: userRoleValidate,
 	}
 }
