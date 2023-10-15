@@ -44,7 +44,7 @@ func (h *handler) GetByMe(c *fiber.Ctx) error {
 	payload := core.Payload(c)
 
 	data := h.UserUc.GetById(payload.Sub)
-	if *data.ID == "" {
+	if !core.IsUuid(data.ID) {
 		return core.NotFound(c)
 	}
 
@@ -59,7 +59,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 	_ = c.BodyParser(&body)
 
 	data := h.UserUc.GetById(body.ID)
-	if *data.ID == "" {
+	if !core.IsUuid(data.ID) {
 		return core.NotFound(c)
 	}
 

@@ -15,7 +15,39 @@ import (
 type server struct {
 	UserUc UseCase
 	RoleUc role.UseCase
-	UnimplementedUserServer
+}
+
+func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserResponse, error) {
+	payload := core.PayloadByToken(request.GetToken())
+
+	data := s.UserUc.GetById(payload.Sub)
+	if !core.IsUuid(data.ID) {
+		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
+	}
+
+	var lastLogin *timestamppb.Timestamp
+	if data.LastLogin != nil {
+		lastLogin = timestamppb.New(*data.LastLogin)
+	}
+	return &UserResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+		Data: &UserData{
+			Id:        *data.ID,
+			Username:  data.Username,
+			Email:     data.Email,
+			FirstName: data.FirstName,
+			LastName:  data.LastName,
+			Avatar:    data.Avatar,
+			Mobile:    data.Mobile,
+			Flag:      int32(data.Flag),
+			RoleId:    *data.RoleID,
+			RoleName:  *data.RoleName,
+			LastLogin: lastLogin,
+			CreatedAt: timestamppb.New(data.CreatedAt),
+			UpdatedAt: timestamppb.New(data.UpdatedAt),
+		},
+	}, nil
 }
 
 func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserListResponse, error) {
@@ -38,18 +70,17 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 	}
 	resp := core.Pagination(paging.Page, paging.Limit, getCount, getData)
 
-	list := []*UserResponse{}
+	list := []*UserData{}
 	for _, u := range resp.List.([]User) {
 		var lastLogin *timestamppb.Timestamp
 		if u.LastLogin != nil {
 			lastLogin = timestamppb.New(*u.LastLogin)
 		}
 
-		list = append(list, &UserResponse{
+		list = append(list, &UserData{
 			Id:        *u.ID,
 			Username:  u.Username,
-			Password:  u.Password,
-			Email:     u.Password,
+			Email:     u.Email,
 			FirstName: u.FirstName,
 			LastName:  u.LastName,
 			Avatar:    u.Avatar,
@@ -77,6 +108,8 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 		},
 	}, nil
 }
+
+func (s *server) mustEmbedUnimplementedUserServer() {}
 
 func NewServer(
 	userUc UseCase,

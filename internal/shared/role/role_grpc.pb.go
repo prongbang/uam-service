@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoleClient interface {
+	GetList(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error)
 	GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error)
 }
 
@@ -31,6 +32,15 @@ type roleClient struct {
 
 func NewRoleClient(cc grpc.ClientConnInterface) RoleClient {
 	return &roleClient{cc}
+}
+
+func (c *roleClient) GetList(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error) {
+	out := new(RoleListResponse)
+	err := c.cc.Invoke(ctx, "/role.Role/GetList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *roleClient) GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error) {
@@ -46,6 +56,7 @@ func (c *roleClient) GetById(ctx context.Context, in *RoleIdRequest, opts ...grp
 // All implementations must embed UnimplementedRoleServer
 // for forward compatibility
 type RoleServer interface {
+	GetList(context.Context, *RoleListRequest) (*RoleListResponse, error)
 	GetById(context.Context, *RoleIdRequest) (*RoleResponse, error)
 	mustEmbedUnimplementedRoleServer()
 }
@@ -54,6 +65,9 @@ type RoleServer interface {
 type UnimplementedRoleServer struct {
 }
 
+func (UnimplementedRoleServer) GetList(context.Context, *RoleListRequest) (*RoleListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetList not implemented")
+}
 func (UnimplementedRoleServer) GetById(context.Context, *RoleIdRequest) (*RoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
@@ -68,6 +82,24 @@ type UnsafeRoleServer interface {
 
 func RegisterRoleServer(s grpc.ServiceRegistrar, srv RoleServer) {
 	s.RegisterService(&Role_ServiceDesc, srv)
+}
+
+func _Role_GetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).GetList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/role.Role/GetList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).GetList(ctx, req.(*RoleListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Role_GetById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -95,6 +127,10 @@ var Role_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "role.Role",
 	HandlerType: (*RoleServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetList",
+			Handler:    _Role_GetList_Handler,
+		},
 		{
 			MethodName: "GetById",
 			Handler:    _Role_GetById_Handler,

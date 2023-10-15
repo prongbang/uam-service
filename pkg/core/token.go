@@ -21,3 +21,11 @@ func Payload(c *fiber.Ctx) token.Claims {
 	}
 	return *payload
 }
+
+func PayloadByToken(accessToken string) token.Claims {
+	payload, err := token.Payload(accessToken)
+	if err != nil {
+		return token.Claims{}
+	}
+	return *payload
+}

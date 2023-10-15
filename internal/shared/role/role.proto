@@ -4,6 +4,19 @@ option go_package = "/role";
 
 package role;
 
+message RoleCreateRequest {
+  string name = 1;
+  int32 level = 2;
+  string token = 3;
+}
+
+message RoleUpdateRequest {
+  string id = 1;
+  string name = 2;
+  int32 level = 3;
+  string token = 4;
+}
+
 message RoleListRequest {
   string token = 1;
 }
