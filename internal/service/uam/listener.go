@@ -1,6 +1,7 @@
 package uam
 
 import (
+	"github.com/prongbang/uam-service/internal/shared/auth"
 	"log"
 	"net"
 
@@ -15,7 +16,7 @@ type GRPCListener interface {
 }
 
 type gRPCListener struct {
-	UamServer UamServer
+	AuthServer auth.AuthServer
 }
 
 // Serve implements GRPCListener.
@@ -26,7 +27,7 @@ func (l *gRPCListener) Serve() {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer()
-		RegisterUamServer(s, l.UamServer)
+		auth.RegisterAuthServer(s, l.AuthServer)
 
 		// Register reflection service on gRPC server.
 		reflection.Register(s)
@@ -37,8 +38,8 @@ func (l *gRPCListener) Serve() {
 	}()
 }
 
-func NewListener(uamServer UamServer) GRPCListener {
+func NewListener(authServer auth.AuthServer) GRPCListener {
 	return &gRPCListener{
-		UamServer: uamServer,
+		AuthServer: authServer,
 	}
 }

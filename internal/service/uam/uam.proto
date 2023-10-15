@@ -20,6 +20,17 @@ message LoginResponse {
   Credential data = 2;
 }
 
+message RoleIdRequest {
+  string id = 1;
+}
+
+message RoleResponse {
+  string id = 1;
+  string name = 2;
+  string level = 3;
+}
+
 service Uam {
   rpc Login (LoginRequest) returns (LoginResponse);
+  rpc GetRoleById (RoleIdRequest) returns (RoleResponse);
 }

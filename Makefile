@@ -13,6 +13,9 @@ gen:
 gen_uam:
 	make gen name=uam in=internal/service/uam out=internal/service
 
+gen_auth:
+	make gen name=auth in=internal/shared/auth out=internal/shared
+
 run:
 	go run cmd/user/main.go
 

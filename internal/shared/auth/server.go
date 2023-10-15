@@ -1,24 +1,23 @@
-package uam
+package auth
 
 import (
 	"context"
 	"errors"
 	"github.com/prongbang/uam-service/internal/localizations"
-	"github.com/prongbang/uam-service/internal/shared/auth"
 	"github.com/prongbang/uam-service/internal/shared/user"
 	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/common"
 	"github.com/prongbang/uam-service/pkg/core"
 )
 
-// Server is used to implement uam.UamServer
-type gRPCServer struct {
+// Server is used to implement uam.AuthServer
+type server struct {
 	Uc     user.UseCase
-	AuthUc auth.UseCase
-	UnimplementedUamServer
+	AuthUc UseCase
+	UnimplementedAuthServer
 }
 
-func (u *gRPCServer) Login(ctx context.Context, request *LoginRequest) (*LoginResponse, error) {
+func (u *server) Login(ctx context.Context, request *LoginRequest) (*LoginResponse, error) {
 	username := request.GetUsername()
 	email := request.GetEmail()
 	password := request.GetPassword()
@@ -33,7 +32,7 @@ func (u *gRPCServer) Login(ctx context.Context, request *LoginRequest) (*LoginRe
 		}
 	}
 
-	req := auth.Login{
+	req := Login{
 		Username: username,
 		Email:    email,
 		Password: password,
@@ -44,15 +43,15 @@ func (u *gRPCServer) Login(ctx context.Context, request *LoginRequest) (*LoginRe
 	}
 	return &LoginResponse{
 		Code: code.StatusOK,
-		Data: &Credential{Token: credential.Token, Roles: credential.Roles},
+		Data: &LoginCredential{Token: credential.Token, Roles: credential.Roles},
 	}, nil
 }
 
 func NewServer(
 	uc user.UseCase,
-	authUc auth.UseCase,
-) UamServer {
-	return &gRPCServer{
+	authUc UseCase,
+) AuthServer {
+	return &server{
 		Uc:     uc,
 		AuthUc: authUc,
 	}
