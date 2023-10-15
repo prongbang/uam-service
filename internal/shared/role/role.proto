@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option go_package = "/role";
+
+package role;
+
+message RoleIdRequest {
+  string id = 1;
+}
+
+message RoleResponse {
+  string id = 1;
+  string name = 2;
+  int32 level = 3;
+}
+
+service Role {
+  rpc GetById (RoleIdRequest) returns (RoleResponse);
+}

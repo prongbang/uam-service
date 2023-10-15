@@ -10,7 +10,6 @@ import (
 	"github.com/prongbang/uam-service/pkg/core"
 )
 
-// Server is used to implement uam.AuthServer
 type server struct {
 	Uc     user.UseCase
 	AuthUc UseCase

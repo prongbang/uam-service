@@ -49,7 +49,8 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 	serviceRouters := NewRouters(apiRouter)
 	serviceAPI := NewAPI(serviceRouters)
 	authServer := auth.NewServer(useCase, authUseCase)
-	grpcListener := uam.NewListener(authServer)
+	roleServer := role.NewServer(useCase, roleUseCase)
+	grpcListener := uam.NewListener(authServer, roleServer)
 	grpc := NewGRPC(grpcListener)
 	serviceService := NewService(serviceAPI, grpc)
 	return serviceService

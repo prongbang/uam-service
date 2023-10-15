@@ -10,8 +10,8 @@ gen:
         --go-grpc_out=$(out) --go-grpc_opt=paths=import \
         $(in)/$(name).proto
 
-gen_uam:
-	make gen name=uam in=internal/service/uam out=internal/service
+gen_role:
+	make gen name=role in=internal/shared/role out=internal/shared
 
 gen_auth:
 	make gen name=auth in=internal/shared/auth out=internal/shared

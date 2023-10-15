@@ -17,7 +17,7 @@ type validate struct {
 func (v *validate) GetById(c *fiber.Ctx) error {
 	b := GetByIdRequest{}
 	err := c.BodyParser(&b)
-	if err != nil || b.ID != "" {
+	if err != nil || !core.IsUuid(&b.ID) {
 		return c.Next()
 	}
 	return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
