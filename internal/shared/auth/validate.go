@@ -18,12 +18,12 @@ func (v *validate) Login(c *fiber.Ctx) error {
 	b := Login{}
 	err := c.BodyParser(&b)
 	if err != nil || b.Password == "" || (b.Email == "" && b.Username == "") {
-		return core.Unauthorized(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.Unauthorized(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	if b.Email != "" && b.Username != "" {
 		if !common.IsEmail(b.Email) {
-			return core.Unauthorized(c, core.MessageText(c, localizations.CommonInvalidData))
+			return core.Unauthorized(c, core.Translate(c, localizations.CommonInvalidData))
 		}
 	}
 

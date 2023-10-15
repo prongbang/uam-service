@@ -41,7 +41,7 @@ func (h *handler) Create(c *fiber.Ctx) error {
 	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.Add(&b); err != nil {
-		return core.BadRequest(c, core.MessageText(c, err.Error()))
+		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 
 	return core.Created(c, b)
@@ -52,7 +52,7 @@ func (h *handler) Update(c *fiber.Ctx) error {
 	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.Update(&b); err != nil {
-		return core.BadRequest(c, core.MessageText(c, err.Error()))
+		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 
 	return core.Ok(c, b)
@@ -65,10 +65,10 @@ func (h *handler) Delete(c *fiber.Ctx) error {
 	_ = c.BodyParser(&b)
 
 	if err := h.RoleUc.DeleteByRole(payload.Roles, b.ID); err != nil {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonCannotDeletePleaseTryAgain))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonCannotDeletePleaseTryAgain))
 	}
 
-	return core.Ok(c, core.SuccessData(c, core.MessageText(c, localizations.CommonDeleteSuccess)))
+	return core.Ok(c, core.SuccessData(c, core.Translate(c, localizations.CommonDeleteSuccess)))
 }
 
 func NewHandler(userUc user.UseCase, roleUc UseCase) Handler {

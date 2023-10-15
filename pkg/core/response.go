@@ -28,11 +28,11 @@ type Response struct {
 
 func SuccessData(c *fiber.Ctx, key string) Success {
 	return Success{
-		Message: MessageText(c, key),
+		Message: Translate(c, key),
 	}
 }
 
-func MessageText(c *fiber.Ctx, key string) string {
+func Translate(c *fiber.Ctx, key string) string {
 	locale := c.Get(fiber.HeaderAcceptLanguage)
 	if locale == "" {
 		locale = localizations.En
@@ -78,7 +78,7 @@ func BadRequest(c *fiber.Ctx, data any) error {
 		for _, e := range data.(validator.ValidationErrors) {
 			field := fmt.Sprint(strings.ToLower(e.Field()[:1]), e.Field()[1:])
 			cause[field] = fiber.Map{
-				"required": fmt.Sprintf(MessageText(c, localizations.CommonFieldIsRequiredAndNotEmpty), field),
+				"required": fmt.Sprintf(Translate(c, localizations.CommonFieldIsRequiredAndNotEmpty), field),
 			}
 		}
 		return c.Status(http.StatusBadRequest).JSON(&Response{
@@ -92,7 +92,7 @@ func BadRequest(c *fiber.Ctx, data any) error {
 	if err, okError := data.(Error); okError {
 		return c.Status(http.StatusBadRequest).JSON(&Response{
 			Code:    err.Code,
-			Message: MessageText(c, err.Message),
+			Message: Translate(c, err.Message),
 		})
 	}
 
@@ -106,7 +106,7 @@ func BadRequest(c *fiber.Ctx, data any) error {
 func NotFound(c *fiber.Ctx) error {
 	return c.Status(http.StatusNotFound).JSON(&Response{
 		Code:    code.StatusNotFound,
-		Message: MessageText(c, localizations.CommonNotFoundData),
+		Message: Translate(c, localizations.CommonNotFoundData),
 	})
 }
 

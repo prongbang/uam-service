@@ -8,6 +8,7 @@ import (
 	"github.com/prongbang/uam-service/internal/shared/user"
 	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/common"
+	"github.com/prongbang/uam-service/pkg/core"
 )
 
 // Server is used to implement uam.UamServer
@@ -17,37 +18,33 @@ type gRPCServer struct {
 	UnimplementedUamServer
 }
 
-func (u *gRPCServer) Login(context context.Context, request *LoginRequest) (*LoginResponse, error) {
+func (u *gRPCServer) Login(ctx context.Context, request *LoginRequest) (*LoginResponse, error) {
 	username := request.GetUsername()
 	email := request.GetEmail()
 	password := request.GetPassword()
 
 	if password == "" || (email == "" && username == "") {
-		return nil, errors.New(localizations.CommonInvalidData)
+		return nil, errors.New(core.TranslateCtx(ctx, localizations.CommonInvalidData))
 	}
 
 	if email != "" && username != "" {
 		if !common.IsEmail(email) {
-			return nil, errors.New(localizations.CommonInvalidData)
+			return nil, errors.New(core.TranslateCtx(ctx, localizations.CommonInvalidData))
 		}
 	}
 
-	credential, err := u.AuthUc.Login(auth.Login{
+	req := auth.Login{
 		Username: username,
 		Email:    email,
 		Password: password,
-	})
+	}
+	credential, err := u.AuthUc.Login(req)
 	if err != nil {
-		return &LoginResponse{
-			Code: code.StatusBadRequest,
-		}, errors.New(localizations.Translate(localizations.En, err.Error()))
+		return nil, errors.New(core.TranslateCtx(ctx, err.Error()))
 	}
 	return &LoginResponse{
 		Code: code.StatusOK,
-		Data: &Credential{
-			Token: credential.Token,
-			Roles: credential.Roles,
-		},
+		Data: &Credential{Token: credential.Token, Roles: credential.Roles},
 	}, nil
 }
 

@@ -20,7 +20,7 @@ func (v *validate) GetById(c *fiber.Ctx) error {
 	if err != nil || b.ID != "" {
 		return c.Next()
 	}
-	return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+	return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 }
 
 func (v *validate) GetList(c *fiber.Ctx) error {
@@ -31,12 +31,12 @@ func (v *validate) Create(c *fiber.Ctx) error {
 	b := CreateRole{}
 	err := c.BodyParser(&b)
 	if err != nil {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	vx := validator.New()
 	if err = vx.Struct(b); err != nil {
-		return core.BadRequest(c, core.MessageText(c, err.Error()))
+		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 	return c.Next()
 }
@@ -45,12 +45,12 @@ func (v *validate) Update(c *fiber.Ctx) error {
 	b := UpdateRole{}
 	err := c.BodyParser(&b)
 	if err != nil || b.ID == "" {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	vx := validator.New()
 	if err = vx.Struct(b); err != nil {
-		return core.BadRequest(c, core.MessageText(c, err.Error()))
+		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 	return c.Next()
 }
@@ -61,7 +61,7 @@ func (v *validate) Delete(c *fiber.Ctx) error {
 	if err != nil || b.ID != "" {
 		return c.Next()
 	}
-	return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+	return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 }
 
 func NewValidate() Validate {

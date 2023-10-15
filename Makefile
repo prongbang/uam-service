@@ -10,9 +10,6 @@ gen:
         --go-grpc_out=$(out) --go-grpc_opt=paths=import \
         $(in)/$(name).proto
 
-gen_user:
-	make gen name=user in=internal/shared/user out=internal/shared
-
 gen_uam:
 	make gen name=uam in=internal/service/uam out=internal/service
 
@@ -20,5 +17,13 @@ run:
 	go run cmd/user/main.go
 
 # brew install grpcurl
-test_login:
-	grpcurl -plaintext -import-path ./internal/service/user -proto user.proto -d '{"username": "admin"}' '[::1]:50052' user.User/GetUser
+# Postman: https://learning.postman.com/docs/sending-requests/grpc/grpc-request-interface/#creating-a-new-request
+username_login:
+	grpcurl -plaintext -import-path ./internal/service/uam -proto uam.proto \
+	-d '{"username": "superadmin", "password": "super.admin"}' \
+	'[::1]:50052' uam.Uam/Login
+
+email_login:
+	grpcurl -plaintext -import-path ./internal/service/uam -proto uam.proto \
+	-d '{"email": "super.admin@gmail.com", "password": "super.admin"}' \
+	'[::1]:50052' uam.Uam/Login

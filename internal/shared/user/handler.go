@@ -22,7 +22,7 @@ func (h *handler) UpdatePassword(c *fiber.Ctx) error {
 	_ = c.BodyParser(&body)
 
 	if err := h.UserUc.UpdatePassword(&body); err != nil {
-		return core.BadRequest(c, core.MessageText(c, err.Error()))
+		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 	return core.Ok(c, nil)
 }
@@ -35,7 +35,7 @@ func (h *handler) UpdatePasswordMe(c *fiber.Ctx) error {
 	body.UserID = payload.Sub
 
 	if err := h.UserUc.UpdatePassword(&body); err != nil {
-		return core.BadRequest(c, core.MessageText(c, err.Error()))
+		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 	return core.Ok(c, nil)
 }
@@ -107,7 +107,7 @@ func (h *handler) Update(c *fiber.Ctx) error {
 
 	if usr := h.UserUc.GetById(body.ID); core.IsUuid(usr.ID) {
 		if err := h.UserUc.Update(&body); err != nil {
-			return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+			return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 		}
 		usr = h.UserUc.GetById(body.ID)
 
@@ -126,7 +126,7 @@ func (h *handler) Delete(c *fiber.Ctx) error {
 
 	if usr := h.UserUc.GetById(body.ID); usr.ID != nil && *usr.ID == body.ID {
 		if err := h.UserUc.Delete(body.ID); err != nil {
-			return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+			return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 		}
 		return core.Ok(c, nil)
 	}

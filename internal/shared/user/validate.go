@@ -22,7 +22,7 @@ func (v *validate) UpdatePassword(c *fiber.Ctx) error {
 	b := Password{}
 	e := c.BodyParser(&b)
 	if e != nil || !core.IsUuid(&b.UserID) || len(b.NewPassword) < 8 {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	vld := validator.New()
@@ -37,7 +37,7 @@ func (v *validate) UpdatePasswordMe(c *fiber.Ctx) error {
 	b := MyPassword{}
 	e := c.BodyParser(&b)
 	if e != nil || len(b.NewPassword) < 8 {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	vld := validator.New()
@@ -58,14 +58,14 @@ func (v *validate) GetById(c *fiber.Ctx) error {
 	if err == nil && core.IsUuid(&body.ID) {
 		return c.Next()
 	}
-	return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+	return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 }
 
 func (v *validate) GetList(c *fiber.Ctx) error {
 	paging := core.PagingBody(c)
 
 	if paging.Invalid() {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonPagingInvalid))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonPagingInvalid))
 	}
 
 	return c.Next()
@@ -74,11 +74,11 @@ func (v *validate) GetList(c *fiber.Ctx) error {
 func (v *validate) Create(c *fiber.Ctx) error {
 	b := CreateUser{}
 	if err := c.BodyParser(&b); err != nil {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	if b.Username == "" && b.Email == "" {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	vld := validator.New()
@@ -86,7 +86,7 @@ func (v *validate) Create(c *fiber.Ctx) error {
 		return core.BadRequest(c, err)
 	}
 	if (b.Username != "" && len(b.Username) < 4) || (b.Email != "" && !common.IsEmail(b.Email)) || len(b.Password) < 8 {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	return c.Next()
@@ -96,15 +96,15 @@ func (v *validate) Update(c *fiber.Ctx) error {
 	body := UpdateUser{}
 	err := c.BodyParser(&body)
 	if err != nil || !core.IsUuid(&body.ID) {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	if body.Username == "" && body.Email == "" {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	if (body.Username != "" && len(body.Username) < 4) || (body.Email != "" && !common.IsEmail(body.Email)) {
-		return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 
 	return c.Next()
@@ -116,7 +116,7 @@ func (v *validate) Delete(c *fiber.Ctx) error {
 	if err == nil && core.IsUuid(&body.ID) {
 		return c.Next()
 	}
-	return core.BadRequest(c, core.MessageText(c, localizations.CommonInvalidData))
+	return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 }
 
 func NewValidate() Validate {
