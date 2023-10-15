@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+option go_package = "/user";
+
+import "google/protobuf/timestamp.proto";
+
+package user;
+
+message UserListRequest {
+  int32 page = 1;
+  int32 limit = 2;
+  string token = 3;
+}
+
+message UserResponse {
+  string id = 1;
+  string username = 2;
+  string password = 3;
+  string email = 4;
+  string first_name = 5;
+  string last_name = 6;
+  google.protobuf.Timestamp last_login = 7;
+  string avatar = 8;
+  string mobile = 9;
+  int32 flag = 10;
+  string role_id = 11;
+  string role_name = 12;
+  google.protobuf.Timestamp created_at = 13;
+  google.protobuf.Timestamp updated_at = 14;
+}
+
+message PagingResponse {
+  repeated UserResponse list = 1;
+  int32 page = 2;
+  int32 limit = 3;
+  int32 count = 4;
+  int32 total = 5;
+  int32 start = 6;
+  int32 end = 7;
+}
+
+message UserListResponse {
+  string code = 1;
+  string message = 2;
+  PagingResponse data = 3;
+}
+
+service User {
+  rpc GetList (UserListRequest) returns (UserListResponse);
+}

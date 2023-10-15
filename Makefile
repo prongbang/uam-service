@@ -16,6 +16,9 @@ gen_role:
 gen_auth:
 	make gen name=auth in=internal/shared/auth out=internal/shared
 
+gen_user:
+	make gen name=user in=internal/shared/user out=internal/shared
+
 run:
 	go run cmd/user/main.go
 

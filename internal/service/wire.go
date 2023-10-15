@@ -22,9 +22,9 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Service {
 		NewRouters,
 		NewGRPC,
 		uam.ProviderSet,
+		role.ProviderSet,
 		user.ProviderSet,
 		user_role.ProviderSet,
-		role.ProviderSet,
 		auth.ProviderSet,
 		forgot.ProviderSet,
 	)

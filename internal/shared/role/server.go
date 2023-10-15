@@ -2,26 +2,25 @@ package role
 
 import (
 	"context"
-	"errors"
 	"github.com/prongbang/uam-service/internal/localizations"
-	"github.com/prongbang/uam-service/internal/shared/user"
 	"github.com/prongbang/uam-service/pkg/core"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
-	UserUc user.UseCase
 	RoleUc UseCase
 	UnimplementedRoleServer
 }
 
 func (s server) GetById(ctx context.Context, request *RoleIdRequest) (*RoleResponse, error) {
 	if !core.IsUuid(&request.Id) {
-		return nil, errors.New(core.TranslateCtx(ctx, localizations.CommonInvalidData))
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
 	}
 
 	data := s.RoleUc.GetById(request.GetId())
 	if data.ID == "" {
-		return nil, errors.New(core.TranslateCtx(ctx, localizations.CommonNotFoundData))
+		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 	}
 	return &RoleResponse{
 		Id:    data.ID,
@@ -31,11 +30,9 @@ func (s server) GetById(ctx context.Context, request *RoleIdRequest) (*RoleRespo
 }
 
 func NewServer(
-	userUc user.UseCase,
 	roleUc UseCase,
 ) RoleServer {
 	return &server{
-		UserUc: userUc,
 		RoleUc: roleUc,
 	}
 }

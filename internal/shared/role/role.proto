@@ -4,8 +4,13 @@ option go_package = "/role";
 
 package role;
 
+message RoleListRequest {
+  string token = 1;
+}
+
 message RoleIdRequest {
   string id = 1;
+  string token = 2;
 }
 
 message RoleResponse {
@@ -14,6 +19,11 @@ message RoleResponse {
   int32 level = 3;
 }
 
+message RoleListResponse {
+  repeated RoleResponse items = 1;
+}
+
 service Role {
+  rpc GetList (RoleListRequest) returns (RoleListResponse);
   rpc GetById (RoleIdRequest) returns (RoleResponse);
 }

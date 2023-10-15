@@ -3,7 +3,6 @@ package role
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/prongbang/uam-service/internal/localizations"
-	"github.com/prongbang/uam-service/internal/shared/user"
 	"github.com/prongbang/uam-service/pkg/core"
 )
 
@@ -13,7 +12,6 @@ type Handler interface {
 
 type handler struct {
 	RoleUc UseCase
-	UserUc user.UseCase
 }
 
 func (h *handler) GetById(c *fiber.Ctx) error {
@@ -71,9 +69,8 @@ func (h *handler) Delete(c *fiber.Ctx) error {
 	return core.Ok(c, core.SuccessData(c, core.Translate(c, localizations.CommonDeleteSuccess)))
 }
 
-func NewHandler(userUc user.UseCase, roleUc UseCase) Handler {
+func NewHandler(roleUc UseCase) Handler {
 	return &handler{
-		UserUc: userUc,
 		RoleUc: roleUc,
 	}
 }

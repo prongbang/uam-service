@@ -2,12 +2,13 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/shared/user"
 	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/common"
 	"github.com/prongbang/uam-service/pkg/core"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
@@ -21,13 +22,15 @@ func (u *server) Login(ctx context.Context, request *LoginRequest) (*LoginRespon
 	email := request.GetEmail()
 	password := request.GetPassword()
 
+	stInvalid := status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData))
+
 	if password == "" || (email == "" && username == "") {
-		return nil, errors.New(core.TranslateCtx(ctx, localizations.CommonInvalidData))
+		return nil, stInvalid.Err()
 	}
 
 	if email != "" && username != "" {
 		if !common.IsEmail(email) {
-			return nil, errors.New(core.TranslateCtx(ctx, localizations.CommonInvalidData))
+			return nil, stInvalid.Err()
 		}
 	}
 
@@ -38,7 +41,7 @@ func (u *server) Login(ctx context.Context, request *LoginRequest) (*LoginRespon
 	}
 	credential, err := u.AuthUc.Login(req)
 	if err != nil {
-		return nil, errors.New(core.TranslateCtx(ctx, err.Error()))
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, err.Error())).Err()
 	}
 	return &LoginResponse{
 		Code: code.StatusOK,
