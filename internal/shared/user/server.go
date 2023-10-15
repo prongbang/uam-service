@@ -17,6 +17,36 @@ type server struct {
 	RoleUc role.UseCase
 }
 
+func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *server) Create(ctx context.Context, request *UserCreateRequest) (*UserResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *server) Update(ctx context.Context, request *UserUpdateRequest) (*UserResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *server) UpdatePassword(ctx context.Context, request *UserUpdatePasswordRequest) (*UserResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *server) UpdatePasswordMe(ctx context.Context, request *UserUpdatePasswordMeRequest) (*UserResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *server) Delete(ctx context.Context, request *UserDeleteRequest) (*UserDeleteResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserResponse, error) {
 	payload := core.PayloadByToken(request.GetToken())
 

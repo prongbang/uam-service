@@ -16,6 +16,52 @@ message UserMeRequest {
   string token = 1;
 }
 
+message UserIdRequest {
+  string id = 1;
+  string token = 2;
+}
+
+message UserDeleteRequest {
+  string id = 1;
+  string token = 2;
+}
+
+message UserUpdateRequest {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string firstName = 4;
+  string lastName = 5;
+  string avatar = 6;
+  string mobile = 7;
+  string token = 8;
+}
+
+message UserCreateRequest {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  string password = 4;
+  string firstName = 5;
+  string lastName = 6;
+  string avatar = 7;
+  string mobile = 8;
+  string token = 9;
+}
+
+message UserUpdatePasswordRequest {
+  string userId = 1;
+  string newPassword = 2;
+  string currentPassword = 3;
+  string token = 4;
+}
+
+message UserUpdatePasswordMeRequest {
+  string newPassword = 1;
+  string currentPassword = 2;
+  string token = 3;
+}
+
 message UserData {
   string id = 1;
   string username = 2;
@@ -55,7 +101,18 @@ message UserListResponse {
   PagingResponse data = 3;
 }
 
+message UserDeleteResponse {
+  string code = 1;
+  string message = 2;
+}
+
 service User {
   rpc GetMe (UserMeRequest) returns (UserResponse);
+  rpc GetById (UserIdRequest) returns (UserResponse);
   rpc GetList (UserListRequest) returns (UserListResponse);
+  rpc Create (UserCreateRequest) returns (UserResponse);
+  rpc Update (UserUpdateRequest) returns (UserResponse);
+  rpc UpdatePassword (UserUpdatePasswordRequest) returns (UserResponse);
+  rpc UpdatePasswordMe (UserUpdatePasswordMeRequest) returns (UserResponse);
+  rpc Delete (UserDeleteRequest) returns (UserDeleteResponse);
 }
