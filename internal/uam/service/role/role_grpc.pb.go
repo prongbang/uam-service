@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.24.3
-// source: internal/shared/role/role.proto
+// source: internal/uam/service/role/role.proto
 
 package role
 
@@ -18,7 +18,7 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// RoleClient is the client API for Role uam.
+// RoleClient is the client API for Role service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoleClient interface {
@@ -52,7 +52,7 @@ func (c *roleClient) GetById(ctx context.Context, in *RoleIdRequest, opts ...grp
 	return out, nil
 }
 
-// RoleServer is the server API for Role uam.
+// RoleServer is the server API for Role service.
 // All implementations must embed UnimplementedRoleServer
 // for forward compatibility
 type RoleServer interface {
@@ -73,7 +73,7 @@ func (UnimplementedRoleServer) GetById(context.Context, *RoleIdRequest) (*RoleRe
 }
 func (UnimplementedRoleServer) mustEmbedUnimplementedRoleServer() {}
 
-// UnsafeRoleServer may be embedded to opt out of forward compatibility for this uam.
+// UnsafeRoleServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to RoleServer will
 // result in compilation errors.
 type UnsafeRoleServer interface {
@@ -120,7 +120,7 @@ func _Role_GetById_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-// Role_ServiceDesc is the grpc.ServiceDesc for Role uam.
+// Role_ServiceDesc is the grpc.ServiceDesc for Role service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Role_ServiceDesc = grpc.ServiceDesc{
@@ -137,5 +137,5 @@ var Role_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/shared/role/role.proto",
+	Metadata: "internal/uam/service/role/role.proto",
 }

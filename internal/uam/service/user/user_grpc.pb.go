@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.24.3
-// source: internal/shared/user/user.proto
+// source: internal/uam/service/user/user.proto
 
 package user
 
@@ -18,7 +18,7 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// UserClient is the client API for User uam.
+// UserClient is the client API for User service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserClient interface {
@@ -112,7 +112,7 @@ func (c *userClient) Delete(ctx context.Context, in *UserDeleteRequest, opts ...
 	return out, nil
 }
 
-// UserServer is the server API for User uam.
+// UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
@@ -157,7 +157,7 @@ func (UnimplementedUserServer) Delete(context.Context, *UserDeleteRequest) (*Use
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
-// UnsafeUserServer may be embedded to opt out of forward compatibility for this uam.
+// UnsafeUserServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to UserServer will
 // result in compilation errors.
 type UnsafeUserServer interface {
@@ -312,7 +312,7 @@ func _User_Delete_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
-// User_ServiceDesc is the grpc.ServiceDesc for User uam.
+// User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var User_ServiceDesc = grpc.ServiceDesc{
@@ -353,5 +353,5 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/shared/user/user.proto",
+	Metadata: "internal/uam/service/user/user.proto",
 }
