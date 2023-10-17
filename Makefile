@@ -11,13 +11,13 @@ gen:
         $(in)/$(name).proto
 
 gen_role:
-	make gen name=role in=internal/shared/role out=internal/shared
+	make gen name=role in=internal/uam/service/role out=internal/uam/service
 
 gen_auth:
-	make gen name=auth in=internal/shared/auth out=internal/shared
+	make gen name=auth in=internal/uam/service/auth out=internal/uam/service
 
 gen_user:
-	make gen name=user in=internal/shared/user out=internal/shared
+	make gen name=user in=internal/uam/service/user out=internal/uam/service
 
 run:
 	go run cmd/user/main.go

@@ -3,9 +3,9 @@ package main
 import (
 	_ "github.com/prongbang/goenv"
 	"github.com/prongbang/uam-service/internal/pkg/casbinx"
-	"github.com/prongbang/uam-service/internal/service"
-	"github.com/prongbang/uam-service/internal/service/database"
-	"github.com/prongbang/uam-service/internal/service/schema"
+	"github.com/prongbang/uam-service/internal/uam"
+	"github.com/prongbang/uam-service/internal/uam/database"
+	"github.com/prongbang/uam-service/internal/uam/schema"
 )
 
 func main() {
@@ -18,8 +18,8 @@ func main() {
 	// Casbin
 	enforce := casbinx.New()
 
-	// Service
-	svc := service.New(dbDriver, enforce)
+	// Services
+	svc := uam.New(dbDriver, enforce)
 
 	// gRPC
 	svc.NewGRPC().Register()
