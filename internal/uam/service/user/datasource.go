@@ -53,12 +53,12 @@ func (d *dataSource) CountByUnderUserId(userId string, params Params) int64 {
 		COUNT(u.id)
 	FROM (
 		SELECT r.level FROM users u 
-		INNER JOIN user_roles ur ON ur.user_id = u.id 
+		INNER JOIN users_roles ur ON ur.user_id = u.id 
 		INNER JOIN roles r ON ur.role_id = r.id
 		WHERE u.flag = ? AND u.id = ?
 	) AS us
 	INNER JOIN users u ON u.flag = ?
-	INNER JOIN user_roles ur ON ur.user_id = u.id
+	INNER JOIN users_roles ur ON ur.user_id = u.id
 	INNER JOIN roles r ON ur.role_id = r.id
 	WHERE r.level >= us.level`
 	err := db.NewRaw(sql, core.FlagAvailable, userId, core.FlagAvailable).Scan(ctx, &count)
@@ -88,7 +88,7 @@ func (d *dataSource) GetList(params Params) []User {
 		r.id AS role_id,
 		r.name AS role_name
 	FROM users u
-	INNER JOIN user_roles ur ON ur.user_id = u.id
+	INNER JOIN users_roles ur ON ur.user_id = u.id
 	INNER JOIN roles r ON ur.role_id = r.id
 	WHERE u.flag = ?
 	LIMIT ? OFFSET ?`
@@ -126,12 +126,12 @@ func (d *dataSource) GetListByUnderUserId(userId string, params Params) []User {
 		r.name AS role_name
 	FROM (
 		SELECT r.level FROM users u 
-		INNER JOIN user_roles ur ON ur.user_id = u.id 
+		INNER JOIN users_roles ur ON ur.user_id = u.id 
 		INNER JOIN roles r ON ur.role_id = r.id
 		WHERE u.flag = ? AND u.id = ?
 	) AS us
 	INNER JOIN users u ON u.flag = ?
-	INNER JOIN user_roles ur ON ur.user_id = u.id
+	INNER JOIN users_roles ur ON ur.user_id = u.id
 	INNER JOIN roles r ON ur.role_id = r.id
 	WHERE r.level >= us.level
 	LIMIT ? OFFSET ?`
@@ -155,7 +155,7 @@ func (d *dataSource) GetById(id string) User {
 		Model(&rows).
 		ColumnExpr("u.*").
 		ColumnExpr("r.id AS role_id, r.name AS role_name").
-		Join("LEFT JOIN user_roles AS ur").JoinOn("ur.user_id = u.id").
+		Join("LEFT JOIN users_roles AS ur").JoinOn("ur.user_id = u.id").
 		Join("LEFT JOIN roles AS r").JoinOn("r.id = ur.role_id").
 		Where("u.id = ?", id).
 		Limit(1).

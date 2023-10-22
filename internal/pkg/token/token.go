@@ -2,11 +2,11 @@ package token
 
 import (
 	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/go-jose/go-jose/v3"
+	"github.com/prongbang/uam-service/pkg/common"
 	"os"
 	"time"
 )
@@ -16,6 +16,10 @@ const (
 	Expired       = "expired"
 )
 
+type AccessToken struct {
+	Token string `json:"token"`
+}
+
 type Claims struct {
 	Exp   int64    `json:"exp"`
 	Iss   string   `json:"iss"`
@@ -23,8 +27,15 @@ type Claims struct {
 	Roles []string `json:"roles"`
 }
 
+func Parse(req any) *AccessToken {
+	if tk := common.AnyToStruct[AccessToken](req); tk != nil && tk.Token != "" {
+		return tk
+	}
+	return nil
+}
+
 func GetKeyBytes() ([]byte, error) {
-	return HexToBytes(GetKey())
+	return common.HexToBytes(GetKey())
 }
 
 func GetKey() string {
@@ -45,23 +56,23 @@ func GenerateKeyString(keySize int) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return BytesToHex(key), nil
-}
-
-func BytesToHex(bytes []byte) string {
-	return hex.EncodeToString(bytes)
-}
-
-func HexToBytes(text string) ([]byte, error) {
-	return hex.DecodeString(text)
+	return common.BytesToHex(key), nil
 }
 
 func Payload(jwe string) (*Claims, error) {
-	key, err := HexToBytes(os.Getenv("JWE_SECRET"))
+	key, err := GetKeyBytes()
 	if err != nil {
 		return nil, err
 	}
 	return GetPayload([]byte(jwe), key)
+}
+
+func Verification(jwe string) (*Claims, error) {
+	key, err := GetKeyBytes()
+	if err != nil {
+		return nil, err
+	}
+	return Verify([]byte(jwe), key)
 }
 
 func GetPayload(jwe, key []byte) (*Claims, error) {
@@ -94,7 +105,7 @@ func New(payload Claims, key []byte) (string, error) {
 		return "", err
 	}
 
-	// Serialize the JWE token.
+	// Serialize the JWE
 	jweCompact, err := jwe.CompactSerialize()
 	if err != nil {
 		fmt.Println("Error serializing JWE:", err)
@@ -105,7 +116,7 @@ func New(payload Claims, key []byte) (string, error) {
 }
 
 func Decrypt(jweCompact, key []byte) (string, error) {
-	// Parse the JWE token.
+	// Parse the JWE
 	jwe, err := jose.ParseEncrypted(string(jweCompact))
 	if err != nil {
 		fmt.Println("Error parsing JWE token:", err)

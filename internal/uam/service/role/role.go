@@ -5,6 +5,10 @@ import (
 	"github.com/uptrace/bun"
 )
 
+const (
+	RoleAnonymous = "anonymous"
+)
+
 type Role struct {
 	bun.BaseModel `bun:"table:roles,alias:r"`
 	ID            string `json:"id" bun:"id,pk,type:uuid"`

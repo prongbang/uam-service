@@ -151,7 +151,7 @@ func (d *dataSource) GetByUserIdList(userId string) []Role {
 	err := db.NewSelect().
 		Model(&rows).
 		ColumnExpr("r.*").
-		Join("JOIN user_roles AS ur").
+		Join("JOIN users_roles AS ur").
 		JoinOn("ur.role_id = r.id").
 		Where("ur.user_id = ?", userId).
 		Scan(ctx)

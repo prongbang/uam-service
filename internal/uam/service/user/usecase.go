@@ -2,7 +2,6 @@ package user
 
 import (
 	"errors"
-	"github.com/casbin/casbin/v2"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/core"
@@ -22,8 +21,7 @@ type UseCase interface {
 }
 
 type useCase struct {
-	Repo    Repository
-	Enforce *casbin.Enforcer
+	Repo Repository
 }
 
 func (u *useCase) Count(params Params) int64 {
@@ -105,9 +103,8 @@ func (u *useCase) Delete(id string) error {
 	return u.Repo.Delete(id)
 }
 
-func NewUseCase(repo Repository, enforce *casbin.Enforcer) UseCase {
+func NewUseCase(repo Repository) UseCase {
 	return &useCase{
-		Repo:    repo,
-		Enforce: enforce,
+		Repo: repo,
 	}
 }

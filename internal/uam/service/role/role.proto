@@ -39,4 +39,7 @@ message RoleListResponse {
 service Role {
   rpc GetList (RoleListRequest) returns (RoleListResponse);
   rpc GetById (RoleIdRequest) returns (RoleResponse);
+  rpc Add (RoleCreateRequest) returns (RoleResponse);
+  rpc Update (RoleUpdateRequest) returns (RoleResponse);
+  rpc Delete (RoleIdRequest) returns (RoleResponse);
 }

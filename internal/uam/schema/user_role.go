@@ -6,7 +6,7 @@ import (
 	"github.com/prongbang/uam-service/internal/uam/database"
 )
 
-const tableUsersRole = "user_roles"
+const tableUsersRole = "users_roles"
 
 type UserRole struct {
 	ID     string `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`

@@ -7,8 +7,9 @@
 package uam
 
 import (
-	"github.com/casbin/casbin/v2"
+	"github.com/prongbang/uam-service/internal/pkg/casbinx"
 	"github.com/prongbang/uam-service/internal/uam/database"
+	"github.com/prongbang/uam-service/internal/uam/interceptor"
 	"github.com/prongbang/uam-service/internal/uam/service/auth"
 	"github.com/prongbang/uam-service/internal/uam/service/forgot"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
@@ -18,7 +19,7 @@ import (
 
 // Injectors from wire.go:
 
-func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Services {
+func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 	dataSource := auth.NewDataSource(dbDriver)
 	repository := auth.NewRepository(dataSource)
 	roleDataSource := role.NewDataSource(dbDriver)
@@ -26,7 +27,7 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Services {
 	useCase := role.NewUseCase(roleRepository)
 	userDataSource := user.NewDataSource(dbDriver)
 	userRepository := user.NewRepository(userDataSource)
-	userUseCase := user.NewUseCase(userRepository, enforce)
+	userUseCase := user.NewUseCase(userRepository)
 	authUseCase := auth.NewUseCase(repository, useCase, userUseCase)
 	handler := auth.NewHandler(authUseCase)
 	validate := auth.NewValidate()
@@ -51,10 +52,12 @@ func New(dbDriver database.Drivers, enforce *casbin.Enforcer) Services {
 	user_roleRouter := user_role.NewRouter(user_roleHandler, user_roleValidate)
 	uamRouters := NewRouters(router, forgotRouter, roleRouter, userRouter, user_roleRouter)
 	uamAPI := NewAPI(uamRouters)
+	jweInterceptor := interceptor.NewJWEInterceptor(casbinXs)
+	interceptors := interceptor.New(jweInterceptor)
 	authServer := auth.NewServer(userUseCase, authUseCase)
 	roleServer := role.NewServer(useCase)
 	userServer := user.NewServer(userUseCase, useCase)
-	uamListeners := NewListeners(authServer, roleServer, userServer)
+	uamListeners := NewListeners(interceptors, authServer, roleServer, userServer)
 	grpc := NewGRPC(uamListeners)
 	uamServices := NewService(uamAPI, grpc)
 	return uamServices

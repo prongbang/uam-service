@@ -10,7 +10,26 @@ import (
 
 type server struct {
 	RoleUc UseCase
-	UnimplementedRoleServer
+}
+
+func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleListResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s server) Add(ctx context.Context, request *RoleCreateRequest) (*RoleResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s server) Update(ctx context.Context, request *RoleUpdateRequest) (*RoleResponse, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s server) Delete(ctx context.Context, request *RoleIdRequest) (*RoleResponse, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s server) GetById(ctx context.Context, request *RoleIdRequest) (*RoleResponse, error) {
@@ -28,6 +47,8 @@ func (s server) GetById(ctx context.Context, request *RoleIdRequest) (*RoleRespo
 		Level: data.Level,
 	}, nil
 }
+
+func (s server) mustEmbedUnimplementedRoleServer() {}
 
 func NewServer(
 	roleUc UseCase,

@@ -8,24 +8,11 @@ import (
 	"os"
 )
 
-const modelText = `
-[request_definition]
-r = sub, obj, act
+const (
+	GRPC = "gRPC"
+)
 
-[policy_definition]
-p = sub, obj, act
-
-[role_definition]
-g = _, _
-
-[policy_effect]
-e = some(where (p.eft == allow))
-
-[matchers]
-m = g(r.sub, p.sub) && r.obj == p.obj && r.act == p.act
-`
-
-func New() *casbin.Enforcer {
+func NewCasbinX(modelPolicy string) *casbin.Enforcer {
 	// Initialize a PGX adapter and use it in a Casbin enforcer:
 	// The adapter will use the Postgres database named "casbin".
 	// If it doesn't exist, the adapter will create it automatically.
@@ -37,7 +24,7 @@ func New() *casbin.Enforcer {
 	)
 
 	// Load policy model from text
-	m, err := model.NewModelFromString(modelText)
+	m, err := model.NewModelFromString(modelPolicy)
 	if err != nil {
 		fmt.Println("Failed to load policy from text: ", err)
 	}

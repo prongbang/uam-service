@@ -16,10 +16,13 @@ func main() {
 	schema.New(dbDriver).Initial()
 
 	// Casbin
-	enforce := casbinx.New()
+	enforceRbac := casbinx.NewCasbinX(casbinx.ModelRbacPolicy)
+	enforceRest := casbinx.NewCasbinX(casbinx.ModelRestPolicy)
+	enforceGrpc := casbinx.NewCasbinX(casbinx.ModelGrpcPolicy)
+	casbinXs := casbinx.New(enforceRbac, enforceRest, enforceGrpc)
 
 	// Services
-	svc := uam.New(dbDriver, enforce)
+	svc := uam.New(dbDriver, casbinXs)
 
 	// gRPC
 	svc.NewGRPC().Register()

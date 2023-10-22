@@ -1,6 +1,7 @@
 package uam
 
 import (
+	"github.com/prongbang/uam-service/internal/uam/interceptor"
 	"github.com/prongbang/uam-service/internal/uam/service/auth"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/internal/uam/service/user"
@@ -18,9 +19,10 @@ type Listeners interface {
 }
 
 type listeners struct {
-	AuthServer auth.AuthServer
-	RoleServer role.RoleServer
-	UserServer user.UserServer
+	Interceptors interceptor.Interceptors
+	AuthServer   auth.AuthServer
+	RoleServer   role.RoleServer
+	UserServer   user.UserServer
 }
 
 // Serve implements Listeners.
@@ -30,7 +32,9 @@ func (l *listeners) Serve() {
 		if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 		}
-		s := grpc.NewServer()
+		s := grpc.NewServer(
+			grpc.UnaryInterceptor(l.Interceptors.JWEInterceptor.Intercept),
+		)
 		auth.RegisterAuthServer(s, l.AuthServer)
 		role.RegisterRoleServer(s, l.RoleServer)
 		user.RegisterUserServer(s, l.UserServer)
@@ -45,13 +49,15 @@ func (l *listeners) Serve() {
 }
 
 func NewListeners(
+	interceptors interceptor.Interceptors,
 	authServer auth.AuthServer,
 	roleServer role.RoleServer,
 	userServer user.UserServer,
 ) Listeners {
 	return &listeners{
-		AuthServer: authServer,
-		RoleServer: roleServer,
-		UserServer: userServer,
+		Interceptors: interceptors,
+		AuthServer:   authServer,
+		RoleServer:   roleServer,
+		UserServer:   userServer,
 	}
 }

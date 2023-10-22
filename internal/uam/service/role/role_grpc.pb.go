@@ -24,6 +24,9 @@ const _ = grpc.SupportPackageIsVersion7
 type RoleClient interface {
 	GetList(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error)
 	GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error)
+	Add(ctx context.Context, in *RoleCreateRequest, opts ...grpc.CallOption) (*RoleResponse, error)
+	Update(ctx context.Context, in *RoleUpdateRequest, opts ...grpc.CallOption) (*RoleResponse, error)
+	Delete(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error)
 }
 
 type roleClient struct {
@@ -52,12 +55,42 @@ func (c *roleClient) GetById(ctx context.Context, in *RoleIdRequest, opts ...grp
 	return out, nil
 }
 
+func (c *roleClient) Add(ctx context.Context, in *RoleCreateRequest, opts ...grpc.CallOption) (*RoleResponse, error) {
+	out := new(RoleResponse)
+	err := c.cc.Invoke(ctx, "/role.Role/Add", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleClient) Update(ctx context.Context, in *RoleUpdateRequest, opts ...grpc.CallOption) (*RoleResponse, error) {
+	out := new(RoleResponse)
+	err := c.cc.Invoke(ctx, "/role.Role/Update", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *roleClient) Delete(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error) {
+	out := new(RoleResponse)
+	err := c.cc.Invoke(ctx, "/role.Role/Delete", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RoleServer is the server API for Role service.
 // All implementations must embed UnimplementedRoleServer
 // for forward compatibility
 type RoleServer interface {
 	GetList(context.Context, *RoleListRequest) (*RoleListResponse, error)
 	GetById(context.Context, *RoleIdRequest) (*RoleResponse, error)
+	Add(context.Context, *RoleCreateRequest) (*RoleResponse, error)
+	Update(context.Context, *RoleUpdateRequest) (*RoleResponse, error)
+	Delete(context.Context, *RoleIdRequest) (*RoleResponse, error)
 	mustEmbedUnimplementedRoleServer()
 }
 
@@ -70,6 +103,15 @@ func (UnimplementedRoleServer) GetList(context.Context, *RoleListRequest) (*Role
 }
 func (UnimplementedRoleServer) GetById(context.Context, *RoleIdRequest) (*RoleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
+}
+func (UnimplementedRoleServer) Add(context.Context, *RoleCreateRequest) (*RoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedRoleServer) Update(context.Context, *RoleUpdateRequest) (*RoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (UnimplementedRoleServer) Delete(context.Context, *RoleIdRequest) (*RoleResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedRoleServer) mustEmbedUnimplementedRoleServer() {}
 
@@ -120,6 +162,60 @@ func _Role_GetById_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Role_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleCreateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).Add(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/role.Role/Add",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).Add(ctx, req.(*RoleCreateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Role_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).Update(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/role.Role/Update",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).Update(ctx, req.(*RoleUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Role_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RoleIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RoleServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/role.Role/Delete",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RoleServer).Delete(ctx, req.(*RoleIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Role_ServiceDesc is the grpc.ServiceDesc for Role service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +230,18 @@ var Role_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetById",
 			Handler:    _Role_GetById_Handler,
+		},
+		{
+			MethodName: "Add",
+			Handler:    _Role_Add_Handler,
+		},
+		{
+			MethodName: "Update",
+			Handler:    _Role_Update_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _Role_Delete_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

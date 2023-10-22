@@ -22,6 +22,8 @@ const (
 	CommonThereIsNoDataUpdate        = "common_there_is_no_data_update"
 	CommonPagingInvalid              = "common_paging_invalid"
 	CommonDataDuplicated             = "common_data_duplicated"
+	CommonUnauthenticated            = "common_unauthenticated"
+	CommonPermissionDenied           = "common_permission_denied"
 )
 
 var Localizes = Localizations{
@@ -38,6 +40,8 @@ var Localizes = Localizations{
 		CommonThereIsNoDataUpdate:        "There is no data to update",
 		CommonPagingInvalid:              "Page or Limit data invalid",
 		CommonDataDuplicated:             "Some of the data is duplicated",
+		CommonUnauthenticated:            "Unauthenticated",
+		CommonPermissionDenied:           "Permission Denied",
 	},
 	Th: Localization{
 		CommonInvalidData:                "ข้อมูลไม่ถูกต้อง",
@@ -52,6 +56,8 @@ var Localizes = Localizations{
 		CommonThereIsNoDataUpdate:        "ไม่มีข้อมูลที่จะอัปเดต",
 		CommonPagingInvalid:              "จำนวนหน้าและการจำกัดข้อมูลไม่ถูกต้อง",
 		CommonDataDuplicated:             "ข้อมูลบางส่วนซ้ำกัน",
+		CommonUnauthenticated:            "ไม่ได้รับการรับรองความถูกต้อง",
+		CommonPermissionDenied:           "การอนุญาตถูกปฏิเสธ",
 	},
 }
 

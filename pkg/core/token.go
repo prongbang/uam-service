@@ -5,12 +5,8 @@ import (
 	"github.com/prongbang/uam-service/internal/pkg/token"
 )
 
-type AccessToken struct {
-	Token string `json:"token"`
-}
-
 func Payload(c *fiber.Ctx) token.Claims {
-	a := new(AccessToken)
+	a := new(token.AccessToken)
 	err := c.BodyParser(a)
 	if err != nil {
 		return token.Claims{}
