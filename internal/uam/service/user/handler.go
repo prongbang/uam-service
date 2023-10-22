@@ -31,7 +31,7 @@ func (h *handler) UpdatePasswordMe(c *fiber.Ctx) error {
 	body := Password{}
 	_ = c.BodyParser(&body)
 
-	payload := core.Payload(c)
+	payload := core.HttpPayload(c)
 	body.UserID = payload.Sub
 
 	if err := h.UserUc.UpdatePassword(&body); err != nil {
@@ -41,7 +41,7 @@ func (h *handler) UpdatePasswordMe(c *fiber.Ctx) error {
 }
 
 func (h *handler) GetByMe(c *fiber.Ctx) error {
-	payload := core.Payload(c)
+	payload := core.HttpPayload(c)
 
 	data := h.UserUc.GetById(payload.Sub)
 	if !core.IsUuid(data.ID) {
@@ -76,13 +76,13 @@ func (h *handler) GetList(c *fiber.Ctx) error {
 
 	getCount := func() int64 { return h.UserUc.Count(params) }
 
-	getData := func(limit int, offset int) any {
+	getData := func(limit int, offset int) []User {
 		params.LimitNo = paging.Limit
 		params.OffsetNo = offset
 		return h.UserUc.GetList(params)
 	}
 
-	return core.Ok(c, core.Pagination(paging.Page, paging.Limit, getCount, getData))
+	return core.Ok(c, core.Pagination[User](paging.Page, paging.Limit, getCount, getData))
 }
 
 func (h *handler) Create(c *fiber.Ctx) error {

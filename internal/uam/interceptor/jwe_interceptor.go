@@ -2,6 +2,7 @@ package interceptor
 
 import (
 	"context"
+	"fmt"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/pkg/casbinx"
 	"github.com/prongbang/uam-service/internal/pkg/token"
@@ -10,7 +11,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"log"
 	"strings"
 )
 
@@ -28,7 +28,7 @@ func (j *jweInterceptor) Intercept(ctx context.Context, req any, info *grpc.Unar
 	if tk := token.Parse(req); tk != nil {
 		payload, err := token.Verification(tk.Token)
 		if err != nil {
-			log.Println("[ERROR] JWE Interceptor", err)
+			fmt.Println("[ERROR] JWE Interceptor", err)
 			return nil, status.New(codes.Unauthenticated, core.TranslateCtx(ctx, localizations.CommonUnauthenticated)).Err()
 		}
 		roles = payload.Roles
@@ -51,7 +51,7 @@ func (j *jweInterceptor) Intercept(ctx context.Context, req any, info *grpc.Unar
 		return handler(ctx, req)
 	}
 
-	log.Println("[ERROR] JWE Interceptor Permission Denied")
+	fmt.Println("[ERROR] JWE Interceptor Permission Denied")
 	return nil, status.New(codes.PermissionDenied, core.TranslateCtx(ctx, localizations.CommonPermissionDenied)).Err()
 }
 

@@ -33,7 +33,9 @@ message RoleResponse {
 }
 
 message RoleListResponse {
-  repeated RoleResponse items = 1;
+  string code = 1;
+  string message = 2;
+  repeated RoleResponse data = 3;
 }
 
 service Role {

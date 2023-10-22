@@ -42,7 +42,7 @@ type DelByIdRequest struct {
 	BodyIdRequest
 }
 
-type Filter struct {
+type Params struct {
 	core.Params
 }
 

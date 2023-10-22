@@ -1,8 +1,8 @@
 package role
 
 type Repository interface {
-	Count() int64
-	GetList(filter Filter) []Role
+	Count(params Params) int64
+	GetList(filter Params) []Role
 	GetListByUnderLevel(level int) []Role
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
@@ -17,12 +17,12 @@ type repository struct {
 	Ds DataSource
 }
 
-func (r *repository) Count() int64 {
-	return r.Ds.Count()
+func (r *repository) Count(params Params) int64 {
+	return r.Ds.Count(params)
 }
 
-func (r *repository) GetList(filter Filter) []Role {
-	return r.Ds.GetList(filter)
+func (r *repository) GetList(params Params) []Role {
+	return r.Ds.GetList(params)
 }
 
 func (r *repository) GetListByUnderLevel(level int) []Role {

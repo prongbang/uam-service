@@ -27,7 +27,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 }
 
 func (h *handler) GetList(c *fiber.Ctx) error {
-	payload := core.Payload(c)
+	payload := core.HttpPayload(c)
 
 	res := h.RoleUc.GetListByUnderRoles(payload.Roles)
 
@@ -57,7 +57,7 @@ func (h *handler) Update(c *fiber.Ctx) error {
 }
 
 func (h *handler) Delete(c *fiber.Ctx) error {
-	payload := core.Payload(c)
+	payload := core.HttpPayload(c)
 
 	b := GetByIdRequest{}
 	_ = c.BodyParser(&b)

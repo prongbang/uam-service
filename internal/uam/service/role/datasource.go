@@ -10,8 +10,8 @@ import (
 )
 
 type DataSource interface {
-	Count() int64
-	GetList(filter Filter) []Role
+	Count(params Params) int64
+	GetList(filter Params) []Role
 	GetListByUnderLevel(level int) []Role
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
@@ -26,7 +26,7 @@ type dataSource struct {
 	Driver database.Drivers
 }
 
-func (d *dataSource) Count() int64 {
+func (d *dataSource) Count(params Params) int64 {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
@@ -38,13 +38,13 @@ func (d *dataSource) Count() int64 {
 	return 0
 }
 
-func (d *dataSource) GetList(filter Filter) []Role {
+func (d *dataSource) GetList(params Params) []Role {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
 	sql := "SELECT id, name, level FROM roles LIMIT ? OFFSET ?"
 	var rows []Role
-	err := db.NewRaw(sql, filter.LimitNo, filter.OffsetNo).Scan(ctx, &rows)
+	err := db.NewRaw(sql, params.LimitNo, params.OffsetNo).Scan(ctx, &rows)
 	if err != nil {
 		fmt.Println(err)
 		return []Role{}

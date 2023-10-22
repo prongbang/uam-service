@@ -5,7 +5,7 @@ import (
 	"github.com/prongbang/uam-service/internal/pkg/token"
 )
 
-func Payload(c *fiber.Ctx) token.Claims {
+func HttpPayload(c *fiber.Ctx) token.Claims {
 	a := new(token.AccessToken)
 	err := c.BodyParser(a)
 	if err != nil {
@@ -18,8 +18,8 @@ func Payload(c *fiber.Ctx) token.Claims {
 	return *payload
 }
 
-func PayloadByToken(accessToken string) token.Claims {
-	payload, err := token.Payload(accessToken)
+func GrpcPayload(jwe string) token.Claims {
+	payload, err := token.Payload(jwe)
 	if err != nil {
 		return token.Claims{}
 	}

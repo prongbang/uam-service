@@ -48,7 +48,7 @@ func (s *server) Delete(ctx context.Context, request *UserDeleteRequest) (*UserD
 }
 
 func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserResponse, error) {
-	payload := core.PayloadByToken(request.GetToken())
+	payload := core.GrpcPayload(request.GetToken())
 
 	data := s.UserUc.GetById(payload.Sub)
 	if !core.IsUuid(data.ID) {
@@ -93,15 +93,15 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 
 	getCount := func() int64 { return s.UserUc.Count(params) }
 
-	getData := func(limit int, offset int) any {
+	getData := func(limit int, offset int) []User {
 		params.LimitNo = paging.Limit
 		params.OffsetNo = offset
 		return s.UserUc.GetList(params)
 	}
-	resp := core.Pagination(paging.Page, paging.Limit, getCount, getData)
+	resp := core.Pagination[User](paging.Page, paging.Limit, getCount, getData)
 
 	list := []*UserData{}
-	for _, u := range resp.List.([]User) {
+	for _, u := range resp.List {
 		var lastLogin *timestamppb.Timestamp
 		if u.LastLogin != nil {
 			lastLogin = timestamppb.New(*u.LastLogin)

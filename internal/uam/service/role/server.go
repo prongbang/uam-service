@@ -3,9 +3,11 @@ package role
 import (
 	"context"
 	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/core"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"net/http"
 )
 
 type server struct {
@@ -13,8 +15,24 @@ type server struct {
 }
 
 func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleListResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	payload := core.GrpcPayload(request.GetToken())
+
+	data := s.RoleUc.GetListByUnderRoles(payload.Roles)
+
+	list := []*RoleResponse{}
+	for _, u := range data {
+		list = append(list, &RoleResponse{
+			Id:    u.ID,
+			Name:  u.Name,
+			Level: u.Level,
+		})
+	}
+
+	return &RoleListResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+		Data:    list,
+	}, nil
 }
 
 func (s server) Add(ctx context.Context, request *RoleCreateRequest) (*RoleResponse, error) {

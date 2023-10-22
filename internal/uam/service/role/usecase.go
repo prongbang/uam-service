@@ -7,8 +7,8 @@ import (
 )
 
 type UseCase interface {
-	Count() int64
-	GetList(filter Filter) []Role
+	Count(params Params) int64
+	GetList(param Params) []Role
 	GetListByUnderLevel(level int) []Role
 	GetListByUnderRoles(roles []string) []Role
 	GetById(id string) Role
@@ -25,12 +25,12 @@ type useCase struct {
 	Repo Repository
 }
 
-func (u *useCase) Count() int64 {
-	return u.Repo.Count()
+func (u *useCase) Count(params Params) int64 {
+	return u.Repo.Count(params)
 }
 
-func (u *useCase) GetList(filter Filter) []Role {
-	return u.Repo.GetList(filter)
+func (u *useCase) GetList(params Params) []Role {
+	return u.Repo.GetList(params)
 }
 
 func (u *useCase) GetListByUnderLevel(level int) []Role {

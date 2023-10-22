@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -10,6 +11,7 @@ type PagingRequest struct {
 }
 
 func (p PagingRequest) Invalid() bool {
+	fmt.Println(p)
 	return p.Page <= 0 || (p.Limit > 0 && p.Limit > 100)
 }
 
