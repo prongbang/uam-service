@@ -8,7 +8,6 @@ import (
 	"github.com/prongbang/uam-service/pkg/core"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"net/http"
 )
 
@@ -24,36 +23,15 @@ func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResp
 	}
 
 	data := s.UserUc.GetById(ParamsGetById{ID: id})
-	if data.ID != nil {
-		var lastLogin *timestamppb.Timestamp
-		if data.LastLogin != nil {
-			lastLogin = timestamppb.New(*data.LastLogin)
-		}
-
-		roles := []*UserRoleResponse{}
-		for _, r := range data.Roles {
-			roles = append(roles, &UserRoleResponse{Id: r.ID, Name: r.Name})
-		}
-
-		return &UserResponse{
-			Code:    code.StatusOK,
-			Message: http.StatusText(http.StatusOK),
-			Data: &UserData{
-				Id:        *data.ID,
-				Username:  data.Username,
-				Email:     data.Email,
-				FirstName: data.FirstName,
-				LastName:  data.FirstName,
-				LastLogin: lastLogin,
-				Avatar:    data.Avatar,
-				Mobile:    data.Mobile,
-				Roles:     roles,
-				CreatedAt: timestamppb.New(data.CreatedAt),
-				UpdatedAt: timestamppb.New(data.UpdatedAt),
-			},
-		}, nil
+	if !core.IsUuid(data.ID) {
+		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 	}
-	return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
+
+	return &UserResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+		Data:    ToUserDataMapper(data),
+	}, nil
 }
 
 func (s *server) Create(ctx context.Context, request *UserCreateRequest) (*UserResponse, error) {
@@ -89,32 +67,10 @@ func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserRespon
 		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 	}
 
-	var lastLogin *timestamppb.Timestamp
-	if data.LastLogin != nil {
-		lastLogin = timestamppb.New(*data.LastLogin)
-	}
-
-	roles := []*UserRoleResponse{}
-	for _, r := range data.Roles {
-		roles = append(roles, &UserRoleResponse{Id: r.ID, Name: r.Name})
-	}
-
 	return &UserResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
-		Data: &UserData{
-			Id:        *data.ID,
-			Username:  data.Username,
-			Email:     data.Email,
-			FirstName: data.FirstName,
-			LastName:  data.LastName,
-			Avatar:    data.Avatar,
-			Mobile:    data.Mobile,
-			LastLogin: lastLogin,
-			Roles:     roles,
-			CreatedAt: timestamppb.New(data.CreatedAt),
-			UpdatedAt: timestamppb.New(data.UpdatedAt),
-		},
+		Data:    ToUserDataMapper(data),
 	}, nil
 }
 
@@ -141,45 +97,10 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 	}
 	resp := core.Pagination[User](paging.Page, paging.Limit, getCount, getData)
 
-	list := []*UserData{}
-	for _, u := range resp.List {
-		var lastLogin *timestamppb.Timestamp
-		if u.LastLogin != nil {
-			lastLogin = timestamppb.New(*u.LastLogin)
-		}
-
-		roles := []*UserRoleResponse{}
-		for _, r := range u.Roles {
-			roles = append(roles, &UserRoleResponse{Id: r.ID, Name: r.Name})
-		}
-
-		list = append(list, &UserData{
-			Id:        *u.ID,
-			Username:  u.Username,
-			Email:     u.Email,
-			FirstName: u.FirstName,
-			LastName:  u.LastName,
-			Avatar:    u.Avatar,
-			Mobile:    u.Mobile,
-			LastLogin: lastLogin,
-			Roles:     roles,
-			CreatedAt: timestamppb.New(u.CreatedAt),
-			UpdatedAt: timestamppb.New(u.UpdatedAt),
-		})
-	}
-
 	return &UserListResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
-		Data: &PagingResponse{
-			List:  list,
-			Page:  int32(resp.Page),
-			Limit: int32(resp.Limit),
-			Count: int32(resp.Count),
-			Total: int32(resp.Total),
-			Start: int32(resp.Start),
-			End:   int32(resp.End),
-		},
+		Data:    ToUserPagingMapper(resp),
 	}, nil
 }
 
