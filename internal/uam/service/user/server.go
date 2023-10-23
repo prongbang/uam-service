@@ -5,6 +5,7 @@ import (
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/pkg/code"
+	"github.com/prongbang/uam-service/pkg/common"
 	"github.com/prongbang/uam-service/pkg/core"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,13 +33,41 @@ func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResp
 	return &UserResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
-		Data:    ToUserDataMapper(data),
+		Data:    FromUserMapper(data),
 	}, nil
 }
 
-func (s *server) Create(ctx context.Context, request *UserCreateRequest) (*UserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *server) Add(ctx context.Context, request *UserCreateRequest) (*UserResponse, error) {
+	payload := core.GrpcPayload(request.GetToken())
+
+	if request.Username == "" && request.Email == "" {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	if (request.Username != "" && len(request.Username) < UsernameMin) || (request.Email != "" && !common.IsEmail(request.Email)) || len(request.Password) < PasswordMin {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	body := CreateUser{
+		Username:  request.Username,
+		Password:  request.Password,
+		Email:     request.Email,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Avatar:    request.Avatar,
+		Mobile:    request.Mobile,
+		CreatedBy: payload.Sub,
+	}
+	usr, err := s.UserUc.Add(&body)
+	if err != nil {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, (*err).Message)).Err()
+	}
+
+	return &UserResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+		Data:    FromUserMapper(usr),
+	}, nil
 }
 
 func (s *server) Update(ctx context.Context, request *UserUpdateRequest) (*UserResponse, error) {
@@ -72,7 +101,7 @@ func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserRespon
 	return &UserResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
-		Data:    ToUserDataMapper(data),
+		Data:    FromUserMapper(data),
 	}, nil
 }
 
@@ -102,7 +131,7 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 	return &UserListResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
-		Data:    ToUserPagingMapper(resp),
+		Data:    FromUserPagingMapper(resp),
 	}, nil
 }
 

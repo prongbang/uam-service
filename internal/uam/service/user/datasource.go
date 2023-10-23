@@ -21,6 +21,7 @@ type DataSource interface {
 	GetByEmail(email string) User
 	GetByUsername(username string) User
 	Add(data *CreateUser) error
+	AddTx(data *CreateUser) (*bun.Tx, error)
 	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
 	Delete(id string) error
@@ -247,6 +248,29 @@ func (d *dataSource) Add(data *CreateUser) error {
 		return nil
 	}
 	return errors.New(localizations.CommonCannotAddData)
+}
+
+func (d *dataSource) AddTx(data *CreateUser) (*bun.Tx, error) {
+	db := d.Driver.GetPqDB()
+	ctx := context.Background()
+	tx, err := db.Begin()
+	if err != nil {
+		return &tx, err
+	}
+
+	// Hash password
+	data.Password = cryptox.HashPassword(data.Password)
+
+	id := new(string)
+	err = tx.NewInsert().Model(data).Returning("id").Scan(ctx, id)
+	if err == nil {
+		if *id != "" {
+			data.ID = id
+			return &tx, nil
+		}
+		return &tx, errors.New(localizations.CommonCannotAddData)
+	}
+	return &tx, errors.New(localizations.CommonCannotAddData)
 }
 
 func (d *dataSource) Update(data *UpdateUser) error {

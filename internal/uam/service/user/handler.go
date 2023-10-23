@@ -94,11 +94,12 @@ func (h *handler) Create(c *fiber.Ctx) error {
 	body := CreateUser{}
 	_ = c.BodyParser(&body)
 
-	if err := h.UserUc.Add(&body); err != nil {
+	body.CreatedBy = payload.Sub
+
+	usr, err := h.UserUc.Add(&body)
+	if err != nil {
 		return core.BadRequest(c, *err)
 	}
-
-	usr := h.UserUc.GetById(ParamsGetById{ID: *body.ID, UserID: payload.Sub})
 
 	// Reset sensitive data
 	usr.Password = ""

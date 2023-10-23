@@ -12,6 +12,7 @@ import (
 	"github.com/prongbang/uam-service/internal/uam/service/forgot"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/internal/uam/service/user"
+	"github.com/prongbang/uam-service/internal/uam/service/user_creator"
 	"github.com/prongbang/uam-service/internal/uam/service/user_role"
 )
 
@@ -26,6 +27,7 @@ func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 		role.ProviderSet,
 		user.ProviderSet,
 		user_role.ProviderSet,
+		user_creator.ProviderSet,
 		auth.ProviderSet,
 		forgot.ProviderSet,
 	)

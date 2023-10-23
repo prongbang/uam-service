@@ -113,7 +113,7 @@ service User {
   rpc GetMe (UserMeRequest) returns (UserResponse);
   rpc GetById (UserIdRequest) returns (UserResponse);
   rpc GetList (UserListRequest) returns (UserListResponse);
-  rpc Create (UserCreateRequest) returns (UserResponse);
+  rpc Add (UserCreateRequest) returns (UserResponse);
   rpc Update (UserUpdateRequest) returns (UserResponse);
   rpc UpdatePassword (UserUpdatePasswordRequest) returns (UserResponse);
   rpc UpdatePasswordMe (UserUpdatePasswordMeRequest) returns (UserResponse);

@@ -59,7 +59,9 @@ func (u *useCase) Add(data *CreateRole) error {
 	if rs := u.Repo.GetByName(data.Name); rs.ID != "" {
 		return errors.New(localizations.CommonDataIsDuplicated)
 	}
-	return u.Repo.Add(data)
+	err := u.Repo.Add(data)
+
+	return err
 }
 
 func (u *useCase) Update(data *UpdateRole) error {

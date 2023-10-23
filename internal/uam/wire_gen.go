@@ -14,6 +14,7 @@ import (
 	"github.com/prongbang/uam-service/internal/uam/service/forgot"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/internal/uam/service/user"
+	"github.com/prongbang/uam-service/internal/uam/service/user_creator"
 	"github.com/prongbang/uam-service/internal/uam/service/user_role"
 )
 
@@ -26,7 +27,8 @@ func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 	roleRepository := role.NewRepository(roleDataSource)
 	useCase := role.NewUseCase(roleRepository)
 	userDataSource := user.NewDataSource(dbDriver)
-	userRepository := user.NewRepository(userDataSource)
+	user_creatorDataSource := user_creator.NewDataSource(dbDriver)
+	userRepository := user.NewRepository(userDataSource, user_creatorDataSource)
 	userUseCase := user.NewUseCase(userRepository)
 	authUseCase := auth.NewUseCase(repository, useCase, userUseCase)
 	handler := auth.NewHandler(authUseCase)

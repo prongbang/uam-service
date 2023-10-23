@@ -23,10 +23,11 @@ type jweInterceptor struct {
 }
 
 func (j *jweInterceptor) Intercept(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+	fmt.Println("[INFO] Request", req)
+
 	// Perform your checks or operations here
 	roles := []string{}
 	if tk := token.Parse(req); tk != nil {
-		fmt.Println("[INFO] Request", tk.Token)
 		payload, err := token.Verification(tk.Token)
 		if err != nil {
 			fmt.Println("[ERROR] JWE Interceptor", err)

@@ -85,7 +85,7 @@ func (v *validate) Create(c *fiber.Ctx) error {
 	if err := vld.Struct(b); err != nil {
 		return core.BadRequest(c, err)
 	}
-	if (b.Username != "" && len(b.Username) < 4) || (b.Email != "" && !common.IsEmail(b.Email)) || len(b.Password) < 8 {
+	if (b.Username != "" && len(b.Username) < UsernameMin) || (b.Email != "" && !common.IsEmail(b.Email)) || len(b.Password) < PasswordMin {
 		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
 

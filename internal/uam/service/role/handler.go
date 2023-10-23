@@ -32,7 +32,10 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 func (h *handler) GetList(c *fiber.Ctx) error {
 	payload := core.HttpPayload(c)
 
-	res := h.RoleUc.GetListByUnderRoles(payload.Roles)
+	params := Params{
+		UserID: payload.Sub,
+	}
+	res := h.RoleUc.GetList(params)
 
 	return core.Ok(c, res)
 }

@@ -30,8 +30,16 @@ func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleLis
 }
 
 func (s server) Add(ctx context.Context, request *RoleCreateRequest) (*RoleResponse, error) {
-	//TODO implement me
-	return nil, status.New(codes.Unimplemented, "Unimplemented").Err()
+	b := CreateRole{
+		Name:  request.GetName(),
+		Level: request.GetLevel(),
+	}
+
+	if err := s.RoleUc.Add(&b); err != nil {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, err.Error())).Err()
+	}
+
+	return &RoleResponse{Id: *b.ID, Name: b.Name}, nil
 }
 
 func (s server) Update(ctx context.Context, request *RoleUpdateRequest) (*RoleResponse, error) {

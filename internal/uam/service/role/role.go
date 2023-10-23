@@ -20,7 +20,6 @@ type CreateRole struct {
 	ID            *string `json:"id" bun:"id,pk,type:uuid"`
 	Name          string  `json:"name" bun:"name" validate:"required"`
 	Level         int32   `json:"level" bun:"level" validate:"required"`
-	CreatedBy     string  `json:"createdBy" bun:"created_by"`
 }
 
 type UpdateRole struct {

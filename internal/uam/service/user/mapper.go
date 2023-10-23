@@ -5,7 +5,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func ToUserDataMapper(u User) *UserData {
+func FromUserMapper(u User) *UserData {
 	var lastLogin *timestamppb.Timestamp
 	if u.LastLogin != nil {
 		lastLogin = timestamppb.New(*u.LastLogin)
@@ -31,7 +31,7 @@ func ToUserDataMapper(u User) *UserData {
 	}
 }
 
-func ToUserPagingMapper(resp core.Paging[User]) *PagingResponse {
+func FromUserPagingMapper(resp core.Paging[User]) *PagingResponse {
 	list := []*UserData{}
 	for _, u := range resp.List {
 		var lastLogin *timestamppb.Timestamp

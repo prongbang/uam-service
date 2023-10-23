@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+const (
+	PasswordMin = 8
+	UsernameMin = 4
+)
+
 type BodyIdRequest struct {
 	ID string `json:"id"`
 }
@@ -46,6 +51,7 @@ type CreateUser struct {
 	LastName      string  `json:"lastName" bun:"last_name"`
 	Avatar        string  `json:"avatar" bun:"avatar"`
 	Mobile        string  `json:"mobile" bun:"mobile"`
+	CreatedBy     string  `json:"createdBy" bun:"-"`
 }
 
 type UpdateUser struct {

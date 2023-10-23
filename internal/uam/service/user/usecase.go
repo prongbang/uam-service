@@ -13,7 +13,7 @@ type UseCase interface {
 	Count(params Params) int64
 	GetList(params Params) []User
 	GetById(params ParamsGetById) User
-	Add(data *CreateUser) *core.Error
+	Add(data *CreateUser) (User, *core.Error)
 	Update(data *UpdateUser) *core.Error
 	UpdatePassword(data *Password) error
 	UpdateLastLogin(userId string) error
@@ -36,24 +36,26 @@ func (u *useCase) GetById(params ParamsGetById) User {
 	return u.Repo.GetById(params)
 }
 
-func (u *useCase) Add(data *CreateUser) *core.Error {
+func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
 	if data.Email != "" {
 		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
-			return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+			return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 		}
 	}
 	if data.Username != "" {
 		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(rs.ID) {
-			return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+			return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 		}
 	}
 
 	err := u.Repo.Add(data)
 	if err != nil {
-		return &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
+		return User{}, &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
 	}
 
-	return nil
+	usr := u.Repo.GetById(ParamsGetById{ID: *data.ID, UserID: data.CreatedBy})
+
+	return usr, nil
 }
 
 func (u *useCase) Update(data *UpdateUser) *core.Error {

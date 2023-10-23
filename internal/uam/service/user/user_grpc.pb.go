@@ -25,7 +25,7 @@ type UserClient interface {
 	GetMe(ctx context.Context, in *UserMeRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetById(ctx context.Context, in *UserIdRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	GetList(ctx context.Context, in *UserListRequest, opts ...grpc.CallOption) (*UserListResponse, error)
-	Create(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	Add(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	Update(ctx context.Context, in *UserUpdateRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	UpdatePassword(ctx context.Context, in *UserUpdatePasswordRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	UpdatePasswordMe(ctx context.Context, in *UserUpdatePasswordMeRequest, opts ...grpc.CallOption) (*UserResponse, error)
@@ -67,9 +67,9 @@ func (c *userClient) GetList(ctx context.Context, in *UserListRequest, opts ...g
 	return out, nil
 }
 
-func (c *userClient) Create(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserResponse, error) {
+func (c *userClient) Add(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserResponse, error) {
 	out := new(UserResponse)
-	err := c.cc.Invoke(ctx, "/user.User/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/user.User/Add", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ type UserServer interface {
 	GetMe(context.Context, *UserMeRequest) (*UserResponse, error)
 	GetById(context.Context, *UserIdRequest) (*UserResponse, error)
 	GetList(context.Context, *UserListRequest) (*UserListResponse, error)
-	Create(context.Context, *UserCreateRequest) (*UserResponse, error)
+	Add(context.Context, *UserCreateRequest) (*UserResponse, error)
 	Update(context.Context, *UserUpdateRequest) (*UserResponse, error)
 	UpdatePassword(context.Context, *UserUpdatePasswordRequest) (*UserResponse, error)
 	UpdatePasswordMe(context.Context, *UserUpdatePasswordMeRequest) (*UserResponse, error)
@@ -140,8 +140,8 @@ func (UnimplementedUserServer) GetById(context.Context, *UserIdRequest) (*UserRe
 func (UnimplementedUserServer) GetList(context.Context, *UserListRequest) (*UserListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetList not implemented")
 }
-func (UnimplementedUserServer) Create(context.Context, *UserCreateRequest) (*UserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedUserServer) Add(context.Context, *UserCreateRequest) (*UserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
 }
 func (UnimplementedUserServer) Update(context.Context, *UserUpdateRequest) (*UserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
@@ -222,20 +222,20 @@ func _User_GetList_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _User_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserCreateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServer).Create(ctx, in)
+		return srv.(UserServer).Add(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/user.User/Create",
+		FullMethod: "/user.User/Add",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).Create(ctx, req.(*UserCreateRequest))
+		return srv.(UserServer).Add(ctx, req.(*UserCreateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -332,8 +332,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _User_GetList_Handler,
 		},
 		{
-			MethodName: "Create",
-			Handler:    _User_Create_Handler,
+			MethodName: "Add",
+			Handler:    _User_Add_Handler,
 		},
 		{
 			MethodName: "Update",
