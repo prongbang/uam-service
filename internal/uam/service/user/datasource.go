@@ -15,10 +15,9 @@ import (
 
 type DataSource interface {
 	Count(params Params) int64
-	CountByUnderUserId(userId string, params Params) int64
 	GetList(params Params) []User
-	GetListByUnderUserId(userId string, params Params) []User
 	GetById(params ParamsGetById) User
+	GetLevelById(userId string) int
 	GetByEmail(email string) User
 	GetByUsername(username string) User
 	Add(data *CreateUser) error
@@ -41,46 +40,22 @@ func (d *dataSource) Count(params Params) int64 {
 	SELECT
 		COUNT(u.id)
 	FROM users u
-	INNER JOIN (
-		SELECT ur.user_id FROM roles r
-		INNER JOIN users_roles ur ON ur.role_id = r.id 
-		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
-		GROUP BY ur.user_id
-	) AS r ON r.user_id = u.id
+	%s
 	WHERE u.flag = ?
 `
-	args := []any{
-		params.ID,
-		params.ID,
-		core.FlagAvailable,
+	joins := ""
+	args := []any{}
+	level := d.GetLevelById(params.UserID)
+	if level > role.Level1 {
+		args = []any{params.UserID, params.UserID}
+		joins = "INNER JOIN users_creators uc ON uc.user_id = u.id AND (uc.created_by = ? OR uc.user_id = ?)"
 	}
+
+	args = append(args, core.FlagAvailable)
+
+	sql = fmt.Sprintf(sql, joins)
 
 	err := db.NewRaw(sql, args...).Scan(ctx, &count)
-	if err == nil {
-		return count
-	}
-	return 0
-}
-
-func (d *dataSource) CountByUnderUserId(userId string, params Params) int64 {
-	db := d.Driver.GetPqDB()
-	ctx := context.Background()
-
-	var count int64 = 0
-	sql := `
-	SELECT
-		COUNT(u.id)
-	FROM (
-		SELECT r.level FROM users u 
-		INNER JOIN users_roles ur ON ur.user_id = u.id 
-		INNER JOIN roles r ON ur.role_id = r.id
-		WHERE u.flag = ? AND u.id = ?
-	) AS us
-	INNER JOIN users u ON u.flag = ?
-	INNER JOIN users_roles ur ON ur.user_id = u.id
-	INNER JOIN roles r ON ur.role_id = r.id
-	WHERE r.level >= us.level`
-	err := db.NewRaw(sql, core.FlagAvailable, userId, core.FlagAvailable).Scan(ctx, &count)
 	if err == nil {
 		return count
 	}
@@ -106,25 +81,28 @@ func (d *dataSource) GetList(params Params) []User {
 		u.updated_at,
 		COALESCE((SELECT JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'name', r.name)) FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id AND ur.user_id = u.id), '[]') AS roles_json
 	FROM users u
-	INNER JOIN (
-		SELECT ur.user_id FROM roles r
-		INNER JOIN users_roles ur ON ur.role_id = r.id 
-		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
-		GROUP BY ur.user_id
-	) AS r ON r.user_id = u.id
+	%s
 	WHERE u.flag = ?
-	ORDER BY u.created_at
+	ORDER BY u.created_at DESC
 	`
 
-	args := []any{
-		params.ID,
-		params.ID,
-		core.FlagAvailable,
+	joins := ""
+	args := []any{}
+	level := d.GetLevelById(params.UserID)
+	if level > role.Level1 {
+		args = []any{params.UserID, params.UserID}
+		joins = "INNER JOIN users_creators uc ON uc.user_id = u.id AND (uc.created_by = ? OR uc.user_id = ?)"
 	}
+
+	args = append(args, core.FlagAvailable)
+
 	if params.LimitNo > 0 && params.OffsetNo >= 0 {
 		sql += " LIMIT ? OFFSET ?"
 		args = append(args, params.LimitNo, params.OffsetNo)
 	}
+
+	sql = fmt.Sprintf(sql, joins)
+
 	var rows []User
 	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
@@ -140,46 +118,6 @@ func (d *dataSource) GetList(params Params) []User {
 			rows[i].Roles = r
 		}
 
-		return rows
-	}
-	return []User{}
-}
-
-func (d *dataSource) GetListByUnderUserId(userId string, params Params) []User {
-	db := d.Driver.GetPqDB()
-	ctx := context.Background()
-
-	var rows []User
-	sql := `
-	SELECT
-		u.id, 
-		u.username, 
-		u.email, 
-		u.first_name, 
-		u.last_name, 
-		u.avatar, 
-		u.mobile, 
-		u.flag, 
-		u.last_login, 
-		u.created_at, 
-		u.updated_at
-	FROM (
-		SELECT r.level FROM users u 
-		INNER JOIN users_roles ur ON ur.user_id = u.id 
-		INNER JOIN roles r ON ur.role_id = r.id
-		WHERE u.flag = ? AND u.id = ?
-	) AS us
-	INNER JOIN users u ON u.flag = ?
-	INNER JOIN users_roles ur ON ur.user_id = u.id
-	INNER JOIN roles r ON ur.role_id = r.id
-	WHERE r.level >= us.level
-	LIMIT ? OFFSET ?`
-	err := db.NewRaw(sql, core.FlagAvailable, userId, core.FlagAvailable, params.LimitNo, params.OffsetNo).Scan(ctx, &rows)
-	if err != nil {
-		fmt.Println(err)
-		return []User{}
-	}
-	if len(rows) > 0 {
 		return rows
 	}
 	return []User{}
@@ -204,21 +142,22 @@ func (d *dataSource) GetById(params ParamsGetById) User {
 		u.updated_at,
 		COALESCE((SELECT JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'name', r.name)) FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id AND ur.user_id = u.id), '[]') AS roles_json
 	FROM users u
-	INNER JOIN (
-		SELECT ur.user_id FROM roles r
-		INNER JOIN users_roles ur ON ur.role_id = r.id 
-		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
-		GROUP BY ur.user_id
-	) AS r ON r.user_id = u.id
+	%s
 	WHERE u.id = ? AND u.flag = ?
+	LIMIT 1
 	`
 
-	args := []any{
-		params.ID,
-		params.ID,
-		params.ID,
-		core.FlagAvailable,
+	joins := ""
+	args := []any{}
+	level := d.GetLevelById(params.UserID)
+	if level > role.Level1 {
+		args = []any{params.UserID, params.UserID}
+		joins = "INNER JOIN users_creators uc ON uc.user_id = u.id AND (uc.created_by = ? OR uc.user_id = ?)"
 	}
+	args = append(args, params.ID, core.FlagAvailable)
+
+	sql = fmt.Sprintf(sql, joins)
+
 	var rows []User
 	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
@@ -237,6 +176,29 @@ func (d *dataSource) GetById(params ParamsGetById) User {
 		return rows[0]
 	}
 	return User{}
+}
+
+func (d *dataSource) GetLevelById(userId string) int {
+	db := d.Driver.GetPqDB()
+	ctx := context.Background()
+
+	sql := `
+	SELECT 
+	    r.level 
+	FROM roles r 
+	INNER JOIN users_roles ur ON ur.role_id = r.id 
+	WHERE ur.user_id = ?
+	LIMIT 1
+	`
+
+	args := []any{userId}
+
+	var level = 0
+	err := db.NewRaw(sql, args...).Scan(ctx, &level)
+	if err == nil {
+		return level
+	}
+	return 0
 }
 
 func (d *dataSource) GetByEmail(email string) User {

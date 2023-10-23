@@ -2,9 +2,7 @@ package user
 
 type Repository interface {
 	Count(params Params) int64
-	CountByUnderUserId(userId string, params Params) int64
 	GetList(params Params) []User
-	GetListByUnderUserId(userId string, params Params) []User
 	GetById(params ParamsGetById) User
 	GetByEmail(email string) User
 	GetByUsername(username string) User
@@ -22,16 +20,8 @@ func (r *repository) Count(params Params) int64 {
 	return r.Ds.Count(params)
 }
 
-func (r *repository) CountByUnderUserId(userId string, params Params) int64 {
-	return r.Ds.CountByUnderUserId(userId, params)
-}
-
 func (r *repository) GetList(params Params) []User {
 	return r.Ds.GetList(params)
-}
-
-func (r *repository) GetListByUnderUserId(userId string, params Params) []User {
-	return r.Ds.GetListByUnderUserId(userId, params)
 }
 
 func (r *repository) GetById(params ParamsGetById) User {

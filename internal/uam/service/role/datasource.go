@@ -9,6 +9,10 @@ import (
 	"github.com/prongbang/uam-service/pkg/core"
 )
 
+const (
+	Level1 = 1
+)
+
 type DataSource interface {
 	Count(params Params) int64
 	GetList(params Params) []Role

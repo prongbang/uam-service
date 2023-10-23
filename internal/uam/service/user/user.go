@@ -76,9 +76,10 @@ type MyPassword struct {
 
 type Params struct {
 	core.Params
-	ID string
+	UserID string
 }
 
 type ParamsGetById struct {
-	ID string
+	ID     string
+	UserID string
 }
