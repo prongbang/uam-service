@@ -18,8 +18,37 @@ type server struct {
 }
 
 func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	id := request.GetId()
+	if !core.IsUuid(&id) {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	data := s.UserUc.GetById(id)
+	if data.ID != nil {
+		var lastLogin *timestamppb.Timestamp
+		if data.LastLogin != nil {
+			lastLogin = timestamppb.New(*data.LastLogin)
+		}
+		return &UserResponse{
+			Code:    code.StatusOK,
+			Message: http.StatusText(http.StatusOK),
+			Data: &UserData{
+				Id:        *data.ID,
+				Username:  data.Username,
+				Email:     data.Email,
+				FirstName: data.FirstName,
+				LastName:  data.FirstName,
+				LastLogin: lastLogin,
+				Avatar:    data.Avatar,
+				Mobile:    data.Mobile,
+				RoleId:    *data.RoleID,
+				RoleName:  *data.RoleName,
+				CreatedAt: timestamppb.New(data.CreatedAt),
+				UpdatedAt: timestamppb.New(data.UpdatedAt),
+			},
+		}, nil
+	}
+	return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 }
 
 func (s *server) Create(ctx context.Context, request *UserCreateRequest) (*UserResponse, error) {

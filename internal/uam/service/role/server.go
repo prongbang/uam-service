@@ -21,11 +21,7 @@ func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleLis
 
 	list := []*RoleResponse{}
 	for _, u := range data {
-		list = append(list, &RoleResponse{
-			Id:    u.ID,
-			Name:  u.Name,
-			Level: u.Level,
-		})
+		list = append(list, &RoleResponse{Id: u.ID, Name: u.Name, Level: u.Level})
 	}
 
 	return &RoleListResponse{
@@ -37,17 +33,17 @@ func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleLis
 
 func (s server) Add(ctx context.Context, request *RoleCreateRequest) (*RoleResponse, error) {
 	//TODO implement me
-	panic("implement me")
+	return nil, status.New(codes.Unimplemented, "Unimplemented").Err()
 }
 
 func (s server) Update(ctx context.Context, request *RoleUpdateRequest) (*RoleResponse, error) {
 	//TODO implement me
-	panic("implement me")
+	return nil, status.New(codes.Unimplemented, "Unimplemented").Err()
 }
 
 func (s server) Delete(ctx context.Context, request *RoleIdRequest) (*RoleResponse, error) {
 	//TODO implement me
-	panic("implement me")
+	return nil, status.New(codes.Unimplemented, "Unimplemented").Err()
 }
 
 func (s server) GetById(ctx context.Context, request *RoleIdRequest) (*RoleResponse, error) {
