@@ -14,6 +14,7 @@ func New(dbDriver database.Drivers) Schema {
 		NewUserSchema,
 		NewRoleSchema,
 		NewUserRoleSchema,
+		NewUserCreatorSchema,
 		NewRBACSchema,
 	)
 	return nil

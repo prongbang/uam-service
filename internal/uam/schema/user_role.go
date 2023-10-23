@@ -14,7 +14,6 @@ type UserRole struct {
 	ID            string `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
 	UserID        string `json:"user_id" bun:"user_id,type:uuid"`
 	RoleID        string `json:"role_id" bun:"role_id,type:uuid"`
-	CreatedBy     string `json:"created_by" bun:"created_by,type:uuid"`
 }
 
 type UserRoleSchema interface {
