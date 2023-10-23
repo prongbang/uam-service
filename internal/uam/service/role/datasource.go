@@ -18,6 +18,7 @@ type DataSource interface {
 	GetList(params Params) []Role
 	GetListByUnderRoles(roles []string) []Role
 	GetById(params ParamsGetById) Role
+	GetLevelById(userId string) int
 	GetByName(name string) Role
 	GetListByUserId(userId string) []Role
 	Add(data *CreateRole) error
@@ -37,15 +38,13 @@ func (d *dataSource) Count(params Params) int64 {
 	SELECT COUNT(r.id) FROM (
 		SELECT r.id, r.name, r.level FROM roles r
 		INNER JOIN users_roles ur ON ur.role_id = r.id 
-		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		WHERE r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
 		GROUP BY r.id
 	) AS r
+	ORDER BY r.level
 	`
 
-	args := []any{
-		params.UserID,
-		params.UserID,
-	}
+	args := []any{params.UserID}
 
 	var id int64 = 0
 	err := db.NewRaw(sql, args...).Scan(ctx, &id)
@@ -63,16 +62,13 @@ func (d *dataSource) GetList(params Params) []Role {
 	SELECT r.id, r.name FROM (
 		SELECT r.id, r.name, r.level FROM roles r
 		INNER JOIN users_roles ur ON ur.role_id = r.id 
-		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		WHERE r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
 		GROUP BY r.id
 	) AS r
 	ORDER BY r.level
 	`
 
-	args := []any{
-		params.UserID,
-		params.UserID,
-	}
+	args := []any{params.UserID}
 	if params.LimitNo > 0 && params.OffsetNo >= 0 {
 		sql += " LIMIT ? OFFSET ?"
 		args = append(args, params.LimitNo, params.OffsetNo)
@@ -122,21 +118,13 @@ func (d *dataSource) GetById(params ParamsGetById) Role {
 	ctx := context.Background()
 
 	sql := `
-	SELECT r.id, r.name FROM (
-		SELECT r.id, r.name, r.level, ur.user_id, ur.created_by FROM roles r
-		INNER JOIN users_roles ur ON ur.role_id = r.id 
-		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
-	) AS r
-	WHERE r.id = ? AND (r.user_id = ? OR r.created_by = ?)
+	SELECT r.id, r.name FROM roles r
+	INNER JOIN users_roles ur ON ur.role_id = r.id 
+	WHERE r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+	AND r.id = ?
 	`
 
-	args := []any{
-		params.UserID,
-		params.UserID,
-		params.ID,
-		params.UserID,
-		params.UserID,
-	}
+	args := []any{params.UserID, params.ID}
 
 	var rows []Role
 	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
@@ -148,6 +136,29 @@ func (d *dataSource) GetById(params ParamsGetById) Role {
 		return rows[0]
 	}
 	return Role{}
+}
+
+func (d *dataSource) GetLevelById(userId string) int {
+	db := d.Driver.GetPqDB()
+	ctx := context.Background()
+
+	sql := `
+	SELECT 
+	    r.level 
+	FROM roles r 
+	INNER JOIN users_roles ur ON ur.role_id = r.id 
+	WHERE ur.user_id = ?
+	LIMIT 1
+	`
+
+	args := []any{userId}
+
+	var level = 0
+	err := db.NewRaw(sql, args...).Scan(ctx, &level)
+	if err == nil {
+		return level
+	}
+	return 0
 }
 
 func (d *dataSource) GetByName(name string) Role {
