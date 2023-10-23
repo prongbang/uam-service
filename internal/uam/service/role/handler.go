@@ -15,10 +15,13 @@ type handler struct {
 }
 
 func (h *handler) GetById(c *fiber.Ctx) error {
+	payload := core.HttpPayload(c)
+
 	b := GetByIdRequest{}
 	_ = c.BodyParser(&b)
 
-	data := h.RoleUc.GetById(b.ID)
+	params := ParamsGetById{ID: b.ID, UserID: payload.Sub}
+	data := h.RoleUc.GetById(params)
 	if data.ID == "" {
 		return core.NotFound(c)
 	}

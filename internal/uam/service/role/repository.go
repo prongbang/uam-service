@@ -2,12 +2,11 @@ package role
 
 type Repository interface {
 	Count(params Params) int64
-	GetList(filter Params) []Role
-	GetListByUnderLevel(level int) []Role
+	GetList(params Params) []Role
 	GetListByUnderRoles(roles []string) []Role
-	GetById(id string) Role
+	GetById(params ParamsGetById) Role
 	GetByName(name string) Role
-	GetByUserIdList(userId string) []Role
+	GetListByUserId(userId string) []Role
 	Add(data *CreateRole) error
 	Update(data *UpdateRole) error
 	Delete(id string) error
@@ -25,24 +24,20 @@ func (r *repository) GetList(params Params) []Role {
 	return r.Ds.GetList(params)
 }
 
-func (r *repository) GetListByUnderLevel(level int) []Role {
-	return r.Ds.GetListByUnderLevel(level)
-}
-
 func (r *repository) GetListByUnderRoles(roles []string) []Role {
 	return r.Ds.GetListByUnderRoles(roles)
 }
 
-func (r *repository) GetById(id string) Role {
-	return r.Ds.GetById(id)
+func (r *repository) GetById(params ParamsGetById) Role {
+	return r.Ds.GetById(params)
 }
 
 func (r *repository) GetByName(name string) Role {
 	return r.Ds.GetByName(name)
 }
 
-func (r *repository) GetByUserIdList(userId string) []Role {
-	return r.Ds.GetByUserIdList(userId)
+func (r *repository) GetListByUserId(userId string) []Role {
+	return r.Ds.GetListByUserId(userId)
 }
 
 func (r *repository) Add(data *CreateRole) error {

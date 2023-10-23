@@ -13,7 +13,6 @@ type Role struct {
 	bun.BaseModel `bun:"table:roles,alias:r"`
 	ID            string `json:"id" bun:"id,pk,type:uuid"`
 	Name          string `json:"name" bun:"name" validate:"required"`
-	Level         int32  `json:"level" bun:"level"`
 }
 
 type CreateRole struct {
@@ -21,6 +20,7 @@ type CreateRole struct {
 	ID            *string `json:"id" bun:"id,pk,type:uuid"`
 	Name          string  `json:"name" bun:"name" validate:"required"`
 	Level         int32   `json:"level" bun:"level" validate:"required"`
+	CreatedBy     string  `json:"createdBy" bun:"created_by"`
 }
 
 type UpdateRole struct {
@@ -44,6 +44,12 @@ type DelByIdRequest struct {
 
 type Params struct {
 	core.Params
+	UserID string
+}
+
+type ParamsGetById struct {
+	ID     string
+	UserID string
 }
 
 type Permission struct {

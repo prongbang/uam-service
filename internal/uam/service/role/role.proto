@@ -29,7 +29,12 @@ message RoleIdRequest {
 message RoleResponse {
   string id = 1;
   string name = 2;
-  int32 level = 3;
+}
+
+message RoleIdResponse {
+  string code = 1;
+  string message = 2;
+  RoleResponse data = 3;
 }
 
 message RoleListResponse {
@@ -40,7 +45,7 @@ message RoleListResponse {
 
 service Role {
   rpc GetList (RoleListRequest) returns (RoleListResponse);
-  rpc GetById (RoleIdRequest) returns (RoleResponse);
+  rpc GetById (RoleIdRequest) returns (RoleIdResponse);
   rpc Add (RoleCreateRequest) returns (RoleResponse);
   rpc Update (RoleUpdateRequest) returns (RoleResponse);
   rpc Delete (RoleIdRequest) returns (RoleResponse);

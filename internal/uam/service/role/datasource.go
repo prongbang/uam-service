@@ -11,12 +11,11 @@ import (
 
 type DataSource interface {
 	Count(params Params) int64
-	GetList(filter Params) []Role
-	GetListByUnderLevel(level int) []Role
+	GetList(params Params) []Role
 	GetListByUnderRoles(roles []string) []Role
-	GetById(id string) Role
+	GetById(params ParamsGetById) Role
 	GetByName(name string) Role
-	GetByUserIdList(userId string) []Role
+	GetListByUserId(userId string) []Role
 	Add(data *CreateRole) error
 	Update(data *UpdateRole) error
 	Delete(id string) error
@@ -30,8 +29,21 @@ func (d *dataSource) Count(params Params) int64 {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
+	sql := `
+	SELECT count(r.id) FROM (
+		SELECT DISTINCT r.id FROM roles r
+		INNER JOIN users_roles ur ON ur.role_id = r.id 
+		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+	) AS r
+	`
+
+	args := []any{
+		params.UserID,
+		params.UserID,
+	}
+
 	var id int64 = 0
-	err := db.NewRaw("SELECT count(id) FROM roles").Scan(ctx, &id)
+	err := db.NewRaw(sql, args...).Scan(ctx, &id)
 	if err == nil {
 		return id
 	}
@@ -42,26 +54,27 @@ func (d *dataSource) GetList(params Params) []Role {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	sql := "SELECT id, name, level FROM roles LIMIT ? OFFSET ?"
-	var rows []Role
-	err := db.NewRaw(sql, params.LimitNo, params.OffsetNo).Scan(ctx, &rows)
-	if err != nil {
-		fmt.Println(err)
-		return []Role{}
-	}
-	if len(rows) > 0 {
-		return rows
-	}
-	return []Role{}
-}
+	sql := `
+	SELECT r.id, r.name FROM (
+		SELECT r.id, r.name, r.level FROM roles r
+		INNER JOIN users_roles ur ON ur.role_id = r.id 
+		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		GROUP BY r.id
+	) AS r
+	ORDER BY r.level
+	`
 
-func (d *dataSource) GetListByUnderLevel(level int) []Role {
-	db := d.Driver.GetPqDB()
-	ctx := context.Background()
+	args := []any{
+		params.UserID,
+		params.UserID,
+	}
+	if params.LimitNo > 0 && params.OffsetNo >= 0 {
+		sql += " LIMIT ? OFFSET ?"
+		args = append(args, params.LimitNo, params.OffsetNo)
+	}
 
-	sql := `SELECT id, name, level FROM roles WHERE level >= ?`
 	var rows []Role
-	err := db.NewRaw(sql, level).Scan(ctx, &rows)
+	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
 		fmt.Println(err)
 		return []Role{}
@@ -77,13 +90,9 @@ func (d *dataSource) GetListByUnderRoles(roles []string) []Role {
 	ctx := context.Background()
 	sql := `
 	SELECT 
-		distinct r.id, r.name, r.level
+		DISTINCT r.id, r.name
 	FROM roles AS r
-	INNER JOIN (
-		SELECT level
-		FROM roles
-		WHERE id IN (%s)
-	) AS q ON r.level >= q.level`
+	INNER JOIN (SELECT level FROM roles WHERE id IN (%s)) AS q ON r.level >= q.level`
 
 	var rows []Role
 	args := []any{}
@@ -103,16 +112,29 @@ func (d *dataSource) GetListByUnderRoles(roles []string) []Role {
 	return []Role{}
 }
 
-func (d *dataSource) GetById(id string) Role {
+func (d *dataSource) GetById(params ParamsGetById) Role {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
+	sql := `
+	SELECT r.id, r.name FROM (
+		SELECT r.id, r.name, r.level, ur.user_id, ur.created_by FROM roles r
+		INNER JOIN users_roles ur ON ur.role_id = r.id 
+		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+	) AS r
+	WHERE r.id = ? AND (r.user_id = ? OR r.created_by = ?)
+	`
+
+	args := []any{
+		params.UserID,
+		params.UserID,
+		params.ID,
+		params.UserID,
+		params.UserID,
+	}
+
 	var rows []Role
-	err := db.NewSelect().
-		Model(&rows).
-		Where("r.id = ?", id).
-		Limit(1).
-		Scan(ctx)
+	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
 		fmt.Println(err)
 		return Role{}
@@ -130,6 +152,7 @@ func (d *dataSource) GetByName(name string) Role {
 	var rows []Role
 	err := db.NewSelect().
 		Model(&rows).
+		ColumnExpr("r.id, r.name").
 		Where("UPPER(r.name) = UPPER(?)", name).
 		Limit(1).
 		Scan(ctx)
@@ -143,14 +166,14 @@ func (d *dataSource) GetByName(name string) Role {
 	return Role{}
 }
 
-func (d *dataSource) GetByUserIdList(userId string) []Role {
+func (d *dataSource) GetListByUserId(userId string) []Role {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
 	var rows []Role
 	err := db.NewSelect().
 		Model(&rows).
-		ColumnExpr("r.*").
+		ColumnExpr("r.id, r.name").
 		Join("JOIN users_roles AS ur").
 		JoinOn("ur.role_id = r.id").
 		Where("ur.user_id = ?", userId).

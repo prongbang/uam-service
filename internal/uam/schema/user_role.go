@@ -4,14 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/prongbang/uam-service/internal/uam/database"
+	"github.com/uptrace/bun"
 )
 
 const tableUsersRole = "users_roles"
 
 type UserRole struct {
-	ID     string `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
-	UserID string `json:"user_id" bun:"user_id,type:uuid"`
-	RoleID string `json:"role_id" bun:"role_id,type:uuid"`
+	bun.BaseModel `bun:"table:users_roles,alias:u"`
+	ID            string `json:"id" bun:"id,pk,type:uuid,default:uuid_generate_v4()"`
+	UserID        string `json:"user_id" bun:"user_id,type:uuid"`
+	RoleID        string `json:"role_id" bun:"role_id,type:uuid"`
+	CreatedBy     string `json:"created_by" bun:"created_by,type:uuid"`
 }
 
 type UserRoleSchema interface {

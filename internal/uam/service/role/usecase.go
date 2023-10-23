@@ -9,12 +9,10 @@ import (
 type UseCase interface {
 	Count(params Params) int64
 	GetList(param Params) []Role
-	GetListByUnderLevel(level int) []Role
 	GetListByUnderRoles(roles []string) []Role
-	GetById(id string) Role
+	GetById(params ParamsGetById) Role
 	GetByName(name string) Role
-	GetByUserIdList(userId string) []Role
-	GetByUserIdStringList(userId string) []string
+	GetListByUserIdString(userId string) []string
 	Add(data *CreateRole) error
 	Update(data *UpdateRole) error
 	Delete(id string) error
@@ -33,10 +31,6 @@ func (u *useCase) GetList(params Params) []Role {
 	return u.Repo.GetList(params)
 }
 
-func (u *useCase) GetListByUnderLevel(level int) []Role {
-	return u.Repo.GetListByUnderLevel(level)
-}
-
 func (u *useCase) GetListByUnderRoles(roles []string) []Role {
 	if len(roles) == 0 {
 		return []Role{}
@@ -44,20 +38,16 @@ func (u *useCase) GetListByUnderRoles(roles []string) []Role {
 	return u.Repo.GetListByUnderRoles(roles)
 }
 
-func (u *useCase) GetById(id string) Role {
-	return u.Repo.GetById(id)
+func (u *useCase) GetById(params ParamsGetById) Role {
+	return u.Repo.GetById(params)
 }
 
 func (u *useCase) GetByName(name string) Role {
 	return u.Repo.GetByName(name)
 }
 
-func (u *useCase) GetByUserIdList(userId string) []Role {
-	return u.Repo.GetByUserIdList(userId)
-}
-
-func (u *useCase) GetByUserIdStringList(userId string) []string {
-	roles := u.Repo.GetByUserIdList(userId)
+func (u *useCase) GetListByUserIdString(userId string) []string {
+	roles := u.Repo.GetListByUserId(userId)
 	list := []string{}
 	for _, i := range roles {
 		list = append(list, i.ID)

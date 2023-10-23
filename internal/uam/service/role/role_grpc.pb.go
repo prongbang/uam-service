@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoleClient interface {
 	GetList(ctx context.Context, in *RoleListRequest, opts ...grpc.CallOption) (*RoleListResponse, error)
-	GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error)
+	GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleIdResponse, error)
 	Add(ctx context.Context, in *RoleCreateRequest, opts ...grpc.CallOption) (*RoleResponse, error)
 	Update(ctx context.Context, in *RoleUpdateRequest, opts ...grpc.CallOption) (*RoleResponse, error)
 	Delete(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error)
@@ -46,8 +46,8 @@ func (c *roleClient) GetList(ctx context.Context, in *RoleListRequest, opts ...g
 	return out, nil
 }
 
-func (c *roleClient) GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleResponse, error) {
-	out := new(RoleResponse)
+func (c *roleClient) GetById(ctx context.Context, in *RoleIdRequest, opts ...grpc.CallOption) (*RoleIdResponse, error) {
+	out := new(RoleIdResponse)
 	err := c.cc.Invoke(ctx, "/role.Role/GetById", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func (c *roleClient) Delete(ctx context.Context, in *RoleIdRequest, opts ...grpc
 // for forward compatibility
 type RoleServer interface {
 	GetList(context.Context, *RoleListRequest) (*RoleListResponse, error)
-	GetById(context.Context, *RoleIdRequest) (*RoleResponse, error)
+	GetById(context.Context, *RoleIdRequest) (*RoleIdResponse, error)
 	Add(context.Context, *RoleCreateRequest) (*RoleResponse, error)
 	Update(context.Context, *RoleUpdateRequest) (*RoleResponse, error)
 	Delete(context.Context, *RoleIdRequest) (*RoleResponse, error)
@@ -101,7 +101,7 @@ type UnimplementedRoleServer struct {
 func (UnimplementedRoleServer) GetList(context.Context, *RoleListRequest) (*RoleListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetList not implemented")
 }
-func (UnimplementedRoleServer) GetById(context.Context, *RoleIdRequest) (*RoleResponse, error) {
+func (UnimplementedRoleServer) GetById(context.Context, *RoleIdRequest) (*RoleIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetById not implemented")
 }
 func (UnimplementedRoleServer) Add(context.Context, *RoleCreateRequest) (*RoleResponse, error) {
