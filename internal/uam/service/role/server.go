@@ -21,15 +21,11 @@ func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleLis
 		UserID: payload.Sub,
 	}
 	data := s.RoleUc.GetList(params)
-	list := []*RoleResponse{}
-	for _, u := range data {
-		list = append(list, &RoleResponse{Id: u.ID, Name: u.Name})
-	}
 
 	return &RoleListResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
-		Data:    list,
+		Data:    ToRoleListMapper(data),
 	}, nil
 }
 
