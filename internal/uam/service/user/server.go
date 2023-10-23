@@ -23,12 +23,18 @@ func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResp
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
 	}
 
-	data := s.UserUc.GetById(id)
+	data := s.UserUc.GetById(ParamsGetById{ID: id})
 	if data.ID != nil {
 		var lastLogin *timestamppb.Timestamp
 		if data.LastLogin != nil {
 			lastLogin = timestamppb.New(*data.LastLogin)
 		}
+
+		roles := []*UserRoleResponse{}
+		for _, r := range data.Roles {
+			roles = append(roles, &UserRoleResponse{Id: r.ID, Name: r.Name})
+		}
+
 		return &UserResponse{
 			Code:    code.StatusOK,
 			Message: http.StatusText(http.StatusOK),
@@ -41,8 +47,7 @@ func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResp
 				LastLogin: lastLogin,
 				Avatar:    data.Avatar,
 				Mobile:    data.Mobile,
-				RoleId:    *data.RoleID,
-				RoleName:  *data.RoleName,
+				Roles:     roles,
 				CreatedAt: timestamppb.New(data.CreatedAt),
 				UpdatedAt: timestamppb.New(data.UpdatedAt),
 			},
@@ -79,7 +84,7 @@ func (s *server) Delete(ctx context.Context, request *UserDeleteRequest) (*UserD
 func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserResponse, error) {
 	payload := core.GrpcPayload(request.GetToken())
 
-	data := s.UserUc.GetById(payload.Sub)
+	data := s.UserUc.GetById(ParamsGetById{ID: payload.Sub})
 	if !core.IsUuid(data.ID) {
 		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 	}
@@ -88,6 +93,12 @@ func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserRespon
 	if data.LastLogin != nil {
 		lastLogin = timestamppb.New(*data.LastLogin)
 	}
+
+	roles := []*UserRoleResponse{}
+	for _, r := range data.Roles {
+		roles = append(roles, &UserRoleResponse{Id: r.ID, Name: r.Name})
+	}
+
 	return &UserResponse{
 		Code:    code.StatusOK,
 		Message: http.StatusText(http.StatusOK),
@@ -99,10 +110,8 @@ func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserRespon
 			LastName:  data.LastName,
 			Avatar:    data.Avatar,
 			Mobile:    data.Mobile,
-			Flag:      int32(data.Flag),
-			RoleId:    *data.RoleID,
-			RoleName:  *data.RoleName,
 			LastLogin: lastLogin,
+			Roles:     roles,
 			CreatedAt: timestamppb.New(data.CreatedAt),
 			UpdatedAt: timestamppb.New(data.UpdatedAt),
 		},
@@ -110,6 +119,7 @@ func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserRespon
 }
 
 func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserListResponse, error) {
+	payload := core.GrpcPayload(request.GetToken())
 	paging := core.PagingRequest{
 		Page:  int(request.GetPage()),
 		Limit: int(request.GetLimit()),
@@ -118,7 +128,9 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
 	}
 
-	params := Params{}
+	params := Params{
+		ID: payload.Sub,
+	}
 
 	getCount := func() int64 { return s.UserUc.Count(params) }
 
@@ -136,6 +148,11 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 			lastLogin = timestamppb.New(*u.LastLogin)
 		}
 
+		roles := []*UserRoleResponse{}
+		for _, r := range u.Roles {
+			roles = append(roles, &UserRoleResponse{Id: r.ID, Name: r.Name})
+		}
+
 		list = append(list, &UserData{
 			Id:        *u.ID,
 			Username:  u.Username,
@@ -144,10 +161,8 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 			LastName:  u.LastName,
 			Avatar:    u.Avatar,
 			Mobile:    u.Mobile,
-			Flag:      int32(u.Flag),
-			RoleId:    *u.RoleID,
-			RoleName:  *u.RoleName,
 			LastLogin: lastLogin,
+			Roles:     roles,
 			CreatedAt: timestamppb.New(u.CreatedAt),
 			UpdatedAt: timestamppb.New(u.UpdatedAt),
 		})

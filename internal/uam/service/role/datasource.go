@@ -30,10 +30,11 @@ func (d *dataSource) Count(params Params) int64 {
 	ctx := context.Background()
 
 	sql := `
-	SELECT count(r.id) FROM (
-		SELECT DISTINCT r.id FROM roles r
+	SELECT COUNT(r.id) FROM (
+		SELECT r.id, r.name, r.level FROM roles r
 		INNER JOIN users_roles ur ON ur.role_id = r.id 
 		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		GROUP BY r.id
 	) AS r
 	`
 

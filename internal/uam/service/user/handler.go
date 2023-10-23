@@ -43,7 +43,7 @@ func (h *handler) UpdatePasswordMe(c *fiber.Ctx) error {
 func (h *handler) GetByMe(c *fiber.Ctx) error {
 	payload := core.HttpPayload(c)
 
-	data := h.UserUc.GetById(payload.Sub)
+	data := h.UserUc.GetById(ParamsGetById{ID: payload.Sub})
 	if !core.IsUuid(data.ID) {
 		return core.NotFound(c)
 	}
@@ -58,7 +58,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 	body := GetByIdRequest{}
 	_ = c.BodyParser(&body)
 
-	data := h.UserUc.GetById(body.ID)
+	data := h.UserUc.GetById(ParamsGetById{ID: body.ID})
 	if !core.IsUuid(data.ID) {
 		return core.NotFound(c)
 	}
@@ -70,9 +70,12 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 }
 
 func (h *handler) GetList(c *fiber.Ctx) error {
+	payload := core.HttpPayload(c)
 	paging := core.PagingBody(c)
 
-	params := Params{}
+	params := Params{
+		ID: payload.Sub,
+	}
 
 	getCount := func() int64 { return h.UserUc.Count(params) }
 
@@ -86,14 +89,14 @@ func (h *handler) GetList(c *fiber.Ctx) error {
 }
 
 func (h *handler) Create(c *fiber.Ctx) error {
-	b := CreateUser{}
-	_ = c.BodyParser(&b)
+	body := CreateUser{}
+	_ = c.BodyParser(&body)
 
-	if err := h.UserUc.Add(&b); err != nil {
+	if err := h.UserUc.Add(&body); err != nil {
 		return core.BadRequest(c, *err)
 	}
 
-	usr := h.UserUc.GetById(*b.ID)
+	usr := h.UserUc.GetById(ParamsGetById{ID: *body.ID})
 
 	// Reset sensitive data
 	usr.Password = ""
@@ -105,11 +108,11 @@ func (h *handler) Update(c *fiber.Ctx) error {
 	body := UpdateUser{}
 	_ = c.BodyParser(&body)
 
-	if usr := h.UserUc.GetById(body.ID); core.IsUuid(usr.ID) {
+	if usr := h.UserUc.GetById(ParamsGetById{ID: body.ID}); core.IsUuid(usr.ID) {
 		if err := h.UserUc.Update(&body); err != nil {
 			return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 		}
-		usr = h.UserUc.GetById(body.ID)
+		usr = h.UserUc.GetById(ParamsGetById{ID: body.ID})
 
 		// Reset sensitive data
 		usr.Password = ""
@@ -124,7 +127,7 @@ func (h *handler) Delete(c *fiber.Ctx) error {
 	body := DeleteByIdRequest{}
 	_ = c.BodyParser(&body)
 
-	if usr := h.UserUc.GetById(body.ID); usr.ID != nil && *usr.ID == body.ID {
+	if usr := h.UserUc.GetById(ParamsGetById{ID: body.ID}); usr.ID != nil && *usr.ID == body.ID {
 		if err := h.UserUc.Delete(body.ID); err != nil {
 			return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 		}

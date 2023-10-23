@@ -72,11 +72,9 @@ message UserData {
   google.protobuf.Timestamp lastLogin = 7;
   string avatar = 8;
   string mobile = 9;
-  int32 flag = 10;
-  string roleId = 11;
-  string roleName = 12;
-  google.protobuf.Timestamp createdAt = 13;
-  google.protobuf.Timestamp updatedAt = 14;
+  repeated UserRoleResponse roles = 10;
+  google.protobuf.Timestamp createdAt = 11;
+  google.protobuf.Timestamp updatedAt = 12;
 }
 
 message PagingResponse {
@@ -93,6 +91,11 @@ message UserResponse {
   string code = 1;
   string message = 2;
   UserData data = 3;
+}
+
+message UserRoleResponse {
+  string id = 1;
+  string name = 2;
 }
 
 message UserListResponse {

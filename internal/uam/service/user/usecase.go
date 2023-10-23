@@ -12,7 +12,7 @@ import (
 type UseCase interface {
 	Count(params Params) int64
 	GetList(params Params) []User
-	GetById(id string) User
+	GetById(params ParamsGetById) User
 	Add(data *CreateUser) *core.Error
 	Update(data *UpdateUser) *core.Error
 	UpdatePassword(data *Password) error
@@ -32,8 +32,8 @@ func (u *useCase) GetList(params Params) []User {
 	return u.Repo.GetList(params)
 }
 
-func (u *useCase) GetById(id string) User {
-	return u.Repo.GetById(id)
+func (u *useCase) GetById(params ParamsGetById) User {
+	return u.Repo.GetById(params)
 }
 
 func (u *useCase) Add(data *CreateUser) *core.Error {
@@ -84,7 +84,7 @@ func (u *useCase) Update(data *UpdateUser) *core.Error {
 }
 
 func (u *useCase) UpdatePassword(data *Password) error {
-	usr := u.GetById(data.UserID)
+	usr := u.GetById(ParamsGetById{ID: data.UserID})
 	if core.IsUuid(usr.ID) && cryptox.VerifyPassword(data.CurrentPassword, usr.Password) {
 		return u.Repo.UpdatePassword(data.UserID, data.NewPassword)
 	}

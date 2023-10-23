@@ -21,7 +21,11 @@ func (d *dataSource) GetByUsername(username string) user.User {
 	ctx := context.Background()
 
 	item := user.User{}
-	err := db.NewSelect().Model(&item).Where("u.username = ?", username).Scan(ctx)
+	err := db.NewSelect().
+		Model(&item).
+		ColumnExpr("u.id, u.username, u.email, u.password").
+		Where("u.username = ?", username).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -34,7 +38,11 @@ func (d *dataSource) GetByEmail(email string) user.User {
 	ctx := context.Background()
 
 	item := user.User{}
-	err := db.NewSelect().Model(&item).Where("u.email = ?", email).Scan(ctx)
+	err := db.NewSelect().
+		Model(&item).
+		ColumnExpr("u.id, u.username, u.email, u.password").
+		Where("u.email = ?", email).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
 	}

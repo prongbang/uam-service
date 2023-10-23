@@ -5,7 +5,7 @@ type Repository interface {
 	CountByUnderUserId(userId string, params Params) int64
 	GetList(params Params) []User
 	GetListByUnderUserId(userId string, params Params) []User
-	GetById(id string) User
+	GetById(params ParamsGetById) User
 	GetByEmail(email string) User
 	GetByUsername(username string) User
 	Add(data *CreateUser) error
@@ -34,8 +34,8 @@ func (r *repository) GetListByUnderUserId(userId string, params Params) []User {
 	return r.Ds.GetListByUnderUserId(userId, params)
 }
 
-func (r *repository) GetById(id string) User {
-	return r.Ds.GetById(id)
+func (r *repository) GetById(params ParamsGetById) User {
+	return r.Ds.GetById(params)
 }
 
 func (r *repository) GetByEmail(email string) User {

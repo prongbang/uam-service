@@ -2,10 +2,12 @@ package user
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/uam/database"
+	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/pkg/core"
 	"github.com/prongbang/uam-service/pkg/cryptox"
 	"github.com/uptrace/bun"
@@ -16,7 +18,7 @@ type DataSource interface {
 	CountByUnderUserId(userId string, params Params) int64
 	GetList(params Params) []User
 	GetListByUnderUserId(userId string, params Params) []User
-	GetById(id string) User
+	GetById(params ParamsGetById) User
 	GetByEmail(email string) User
 	GetByUsername(username string) User
 	Add(data *CreateUser) error
@@ -35,8 +37,25 @@ func (d *dataSource) Count(params Params) int64 {
 	ctx := context.Background()
 
 	var count int64 = 0
-	sql := "SELECT count(id) FROM users WHERE flag = ?"
-	err := db.NewRaw(sql, core.FlagAvailable).Scan(ctx, &count)
+	sql := `
+	SELECT
+		COUNT(u.id)
+	FROM users u
+	INNER JOIN (
+		SELECT ur.user_id FROM roles r
+		INNER JOIN users_roles ur ON ur.role_id = r.id 
+		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		GROUP BY ur.user_id
+	) AS r ON r.user_id = u.id
+	WHERE u.flag = ?
+`
+	args := []any{
+		params.ID,
+		params.ID,
+		core.FlagAvailable,
+	}
+
+	err := db.NewRaw(sql, args...).Scan(ctx, &count)
 	if err == nil {
 		return count
 	}
@@ -85,20 +104,42 @@ func (d *dataSource) GetList(params Params) []User {
 		u.last_login, 
 		u.created_at, 
 		u.updated_at,
-		r.id AS role_id,
-		r.name AS role_name
+		COALESCE((SELECT JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'name', r.name)) FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id AND ur.user_id = u.id), '[]') AS roles_json
 	FROM users u
-	INNER JOIN users_roles ur ON ur.user_id = u.id
-	INNER JOIN roles r ON ur.role_id = r.id
+	INNER JOIN (
+		SELECT ur.user_id FROM roles r
+		INNER JOIN users_roles ur ON ur.role_id = r.id 
+		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		GROUP BY ur.user_id
+	) AS r ON r.user_id = u.id
 	WHERE u.flag = ?
-	LIMIT ? OFFSET ?`
+	ORDER BY u.created_at
+	`
+
+	args := []any{
+		params.ID,
+		params.ID,
+		core.FlagAvailable,
+	}
+	if params.LimitNo > 0 && params.OffsetNo >= 0 {
+		sql += " LIMIT ? OFFSET ?"
+		args = append(args, params.LimitNo, params.OffsetNo)
+	}
 	var rows []User
-	err := db.NewRaw(sql, core.FlagAvailable, params.LimitNo, params.OffsetNo).Scan(ctx, &rows)
+	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
 		fmt.Println(err)
 		return []User{}
 	}
 	if len(rows) > 0 {
+
+		// Parse json to list
+		for i, u := range rows {
+			r := []role.Role{}
+			_ = json.Unmarshal([]byte(u.RolesJson), &r)
+			rows[i].Roles = r
+		}
+
 		return rows
 	}
 	return []User{}
@@ -121,9 +162,7 @@ func (d *dataSource) GetListByUnderUserId(userId string, params Params) []User {
 		u.flag, 
 		u.last_login, 
 		u.created_at, 
-		u.updated_at,
-		r.id AS role_id,
-		r.name AS role_name
+		u.updated_at
 	FROM (
 		SELECT r.level FROM users u 
 		INNER JOIN users_roles ur ON ur.user_id = u.id 
@@ -146,25 +185,55 @@ func (d *dataSource) GetListByUnderUserId(userId string, params Params) []User {
 	return []User{}
 }
 
-func (d *dataSource) GetById(id string) User {
+func (d *dataSource) GetById(params ParamsGetById) User {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
+	sql := `
+	SELECT
+		u.id, 
+		u.username, 
+		u.email, 
+		u.first_name, 
+		u.last_name, 
+		u.avatar, 
+		u.mobile, 
+		u.flag, 
+		u.last_login, 
+		u.created_at, 
+		u.updated_at,
+		COALESCE((SELECT JSON_AGG(JSON_BUILD_OBJECT('id', r.id, 'name', r.name)) FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id AND ur.user_id = u.id), '[]') AS roles_json
+	FROM users u
+	INNER JOIN (
+		SELECT ur.user_id FROM roles r
+		INNER JOIN users_roles ur ON ur.role_id = r.id 
+		WHERE ur.created_by = ? OR r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
+		GROUP BY ur.user_id
+	) AS r ON r.user_id = u.id
+	WHERE u.id = ? AND u.flag = ?
+	`
+
+	args := []any{
+		params.ID,
+		params.ID,
+		params.ID,
+		core.FlagAvailable,
+	}
 	var rows []User
-	err := db.NewSelect().
-		Model(&rows).
-		ColumnExpr("u.*").
-		ColumnExpr("r.id AS role_id, r.name AS role_name").
-		Join("LEFT JOIN users_roles AS ur").JoinOn("ur.user_id = u.id").
-		Join("LEFT JOIN roles AS r").JoinOn("r.id = ur.role_id").
-		Where("u.id = ?", id).
-		Limit(1).
-		Scan(ctx)
+	err := db.NewRaw(sql, args...).Scan(ctx, &rows)
 	if err != nil {
 		fmt.Println(err)
 		return User{}
 	}
 	if len(rows) > 0 {
+
+		// Parse json to list
+		for i, u := range rows {
+			r := []role.Role{}
+			_ = json.Unmarshal([]byte(u.RolesJson), &r)
+			rows[i].Roles = r
+		}
+
 		return rows[0]
 	}
 	return User{}
