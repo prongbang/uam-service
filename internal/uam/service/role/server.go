@@ -35,7 +35,7 @@ func (s server) Add(ctx context.Context, request *RoleCreateRequest) (*RoleRespo
 		Level: request.GetLevel(),
 	}
 
-	if b.Name == "" || b.Level < 1 {
+	if b.Name == "" || b.Level < Level1 {
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
 	}
 

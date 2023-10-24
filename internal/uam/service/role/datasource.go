@@ -202,11 +202,11 @@ func (d *dataSource) GetListByUserId(userId string) []Role {
 func (d *dataSource) Add(data *CreateRole) error {
 	db := d.Driver.GetPqDB()
 
-	tx, err := bunx.InsertTx[CreateRole](db, data, data.ID)
+	id := new(string)
+	_, err := bunx.InsertTx[CreateRole, string](db, data, id, true)
 	if err == nil {
-		if tx.Commit() == nil {
-			return nil
-		}
+		data.ID = id
+		return nil
 	}
 	return errors.New(localizations.CommonCannotAddData)
 }
