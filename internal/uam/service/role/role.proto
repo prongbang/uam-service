@@ -26,27 +26,32 @@ message RoleIdRequest {
   string token = 2;
 }
 
-message RoleResponse {
+message RoleData {
   string id = 1;
   string name = 2;
 }
 
-message RoleIdResponse {
+message RoleResponse {
   string code = 1;
   string message = 2;
-  RoleResponse data = 3;
+  RoleData data = 3;
+}
+
+message RoleDeleteResponse {
+  string code = 1;
+  string message = 2;
 }
 
 message RoleListResponse {
   string code = 1;
   string message = 2;
-  repeated RoleResponse data = 3;
+  repeated RoleData data = 3;
 }
 
 service Role {
   rpc GetList (RoleListRequest) returns (RoleListResponse);
-  rpc GetById (RoleIdRequest) returns (RoleIdResponse);
+  rpc GetById (RoleIdRequest) returns (RoleResponse);
   rpc Add (RoleCreateRequest) returns (RoleResponse);
   rpc Update (RoleUpdateRequest) returns (RoleResponse);
-  rpc Delete (RoleIdRequest) returns (RoleResponse);
+  rpc Delete (RoleIdRequest) returns (RoleDeleteResponse);
 }

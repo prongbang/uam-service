@@ -12,3 +12,7 @@ func IsUuid(value *string) bool {
 	}
 	return false
 }
+
+func IsNotUuid(value *string) bool {
+	return !IsUuid(value)
+}

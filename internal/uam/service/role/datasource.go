@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/uam/bunx"
 	"github.com/prongbang/uam-service/internal/uam/database"
 	"github.com/prongbang/uam-service/pkg/core"
 )
@@ -37,7 +38,6 @@ func (d *dataSource) Count(params Params) int64 {
 	sql := `
 	SELECT COUNT(r.id) FROM (
 		SELECT r.id, r.name, r.level FROM roles r
-		INNER JOIN users_roles ur ON ur.role_id = r.id 
 		WHERE r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
 		GROUP BY r.id
 	) AS r
@@ -61,7 +61,6 @@ func (d *dataSource) GetList(params Params) []Role {
 	sql := `
 	SELECT r.id, r.name FROM (
 		SELECT r.id, r.name, r.level FROM roles r
-		INNER JOIN users_roles ur ON ur.role_id = r.id 
 		WHERE r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
 		GROUP BY r.id
 	) AS r
@@ -119,7 +118,6 @@ func (d *dataSource) GetById(params ParamsGetById) Role {
 
 	sql := `
 	SELECT r.id, r.name FROM roles r
-	INNER JOIN users_roles ur ON ur.role_id = r.id 
 	WHERE r.level >= (SELECT r.level FROM roles r INNER JOIN users_roles ur ON ur.role_id = r.id WHERE ur.user_id = ? LIMIT 1)
 	AND r.id = ?
 	`
@@ -203,13 +201,12 @@ func (d *dataSource) GetListByUserId(userId string) []Role {
 
 func (d *dataSource) Add(data *CreateRole) error {
 	db := d.Driver.GetPqDB()
-	ctx := context.Background()
 
-	id := new(string)
-	_ = db.NewInsert().Model(data).Returning("id").Scan(ctx, id)
-	if *id != "" {
-		data.ID = id
-		return nil
+	tx, err := bunx.InsertTx[CreateRole](db, data, data.ID)
+	if err == nil {
+		if tx.Commit() == nil {
+			return nil
+		}
 	}
 	return errors.New(localizations.CommonCannotAddData)
 }

@@ -25,7 +25,6 @@ type DataSource interface {
 	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
 	Delete(id string) error
-	DeleteTx(id string) (*bun.Tx, error)
 }
 
 type dataSource struct {
@@ -348,25 +347,6 @@ func (d *dataSource) Delete(id string) error {
 		}
 	}
 	return errors.New(localizations.CommonCannotDeleteData)
-}
-
-func (d *dataSource) DeleteTx(id string) (*bun.Tx, error) {
-	db := d.Driver.GetPqDB()
-	ctx := context.Background()
-	tx, err := db.Begin()
-	if err != nil {
-		return &tx, err
-	}
-	rs, err := tx.NewDelete().
-		Table("users").
-		Where("id = ?", id).
-		Exec(ctx)
-	if err == nil {
-		if row, e := rs.RowsAffected(); e == nil && row > 0 {
-			return &tx, tx.Commit()
-		}
-	}
-	return &tx, errors.New(localizations.CommonCannotDeleteData)
 }
 
 func NewDataSource(
