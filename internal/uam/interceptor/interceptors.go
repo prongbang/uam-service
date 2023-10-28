@@ -1,13 +1,13 @@
 package interceptor
 
 type Interceptors struct {
-	JWEInterceptor JWEInterceptor
+	Auth AuthInterceptor
 }
 
 func New(
-	jweInterceptor JWEInterceptor,
+	authInterceptor AuthInterceptor,
 ) Interceptors {
 	return Interceptors{
-		JWEInterceptor: jweInterceptor,
+		Auth: authInterceptor,
 	}
 }

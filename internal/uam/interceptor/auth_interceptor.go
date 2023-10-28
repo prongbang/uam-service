@@ -14,15 +14,15 @@ import (
 	"strings"
 )
 
-type JWEInterceptor interface {
+type AuthInterceptor interface {
 	Intercept(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error)
 }
 
-type jweInterceptor struct {
+type authInterceptor struct {
 	CasbinXs casbinx.CasbinXs
 }
 
-func (j *jweInterceptor) Intercept(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
+func (j *authInterceptor) Intercept(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	fmt.Println("[INFO] Request", req)
 
 	// Perform your checks or operations here
@@ -57,8 +57,8 @@ func (j *jweInterceptor) Intercept(ctx context.Context, req any, info *grpc.Unar
 	return nil, status.New(codes.PermissionDenied, core.TranslateCtx(ctx, localizations.CommonPermissionDenied)).Err()
 }
 
-func NewJWEInterceptor(casbinXs casbinx.CasbinXs) JWEInterceptor {
-	return &jweInterceptor{
+func NewJWEInterceptor(casbinXs casbinx.CasbinXs) AuthInterceptor {
+	return &authInterceptor{
 		CasbinXs: casbinXs,
 	}
 }

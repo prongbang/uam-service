@@ -33,7 +33,7 @@ func (l *listeners) Serve() {
 			log.Fatalf("failed to listen: %v", err)
 		}
 		s := grpc.NewServer(
-			grpc.UnaryInterceptor(l.Interceptors.JWEInterceptor.Intercept),
+			grpc.UnaryInterceptor(l.Interceptors.Auth.Intercept),
 		)
 		auth.RegisterAuthServer(s, l.AuthServer)
 		role.RegisterRoleServer(s, l.RoleServer)

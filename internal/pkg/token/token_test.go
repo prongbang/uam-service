@@ -3,6 +3,7 @@ package token_test
 import (
 	"fmt"
 	"github.com/prongbang/uam-service/internal/pkg/token"
+	"github.com/prongbang/uam-service/pkg/common"
 	"testing"
 	"time"
 )
@@ -26,7 +27,7 @@ func TestNew(t *testing.T) {
 		},
 	}
 	keyHex, _ := token.GenerateKeyString(token.AES256KeySize)
-	key, _ := token.HexToBytes(keyHex)
+	key, _ := common.HexToBytes(keyHex)
 
 	actual, err := token.New(payload, key)
 
@@ -39,7 +40,7 @@ func TestNew(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	sub := "d4a45b08-825b-4c5f-8a63-fa8991dd0945"
-	key, _ := token.HexToBytes("fe5a40559cdf1a4e4b38b72acb8c601a0ecb6014d3300d3541f9b93b707fc1dd")
+	key, _ := common.HexToBytes("fe5a40559cdf1a4e4b38b72acb8c601a0ecb6014d3300d3541f9b93b707fc1dd")
 	jweCompact := []byte("eyJhbGciOiJBMjU2R0NNS1ciLCJlbmMiOiJBMjU2R0NNIiwiaXYiOiJ3WjZVdmViUzF5VF9PTWFMIiwidGFnIjoiX3NhYW0ySmxJcVk2WnVwZ2ZkTTlMdyJ9.jgeYY1-ZpUXBTRil-5ikZlh5SZvF-1UvfRMBAi0dqNc.uG9JcKID3yKFpVQg.wiVZZ8ht3EyYE1Q_saareNchRob9SymyNXE_xw7F6I85HAxwPUv0fIsNJQVEzO49vWz9F9YecO5k1rDRsjSNMcLdww3aUfSQBgVV7xhWK0KmELAeBnQx0w.ISc500xZjrAiBE6GE-qTxQ")
 
 	actual, err := token.Verify(jweCompact, key)

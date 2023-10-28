@@ -8,6 +8,7 @@ import (
 	"github.com/prongbang/uam-service/internal/pkg/casbinx"
 	"github.com/prongbang/uam-service/internal/uam/database"
 	"github.com/prongbang/uam-service/internal/uam/interceptor"
+	"github.com/prongbang/uam-service/internal/uam/middleware"
 	"github.com/prongbang/uam-service/internal/uam/service/auth"
 	"github.com/prongbang/uam-service/internal/uam/service/forgot"
 	"github.com/prongbang/uam-service/internal/uam/service/permissions"
@@ -26,6 +27,7 @@ func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 		NewGRPC,
 		permissions.ProviderSet,
 		interceptor.ProviderSet,
+		middleware.ProviderSet,
 		role.ProviderSet,
 		user.ProviderSet,
 		user_role.ProviderSet,

@@ -10,6 +10,7 @@ import (
 	"github.com/prongbang/uam-service/internal/pkg/casbinx"
 	"github.com/prongbang/uam-service/internal/uam/database"
 	"github.com/prongbang/uam-service/internal/uam/interceptor"
+	"github.com/prongbang/uam-service/internal/uam/middleware"
 	"github.com/prongbang/uam-service/internal/uam/service/auth"
 	"github.com/prongbang/uam-service/internal/uam/service/forgot"
 	"github.com/prongbang/uam-service/internal/uam/service/permissions"
@@ -55,9 +56,11 @@ func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 	user_roleValidate := user_role.NewValidate()
 	user_roleRouter := user_role.NewRouter(user_roleHandler, user_roleValidate)
 	uamRouters := NewRouters(router, forgotRouter, roleRouter, userRouter, user_roleRouter)
-	uamAPI := NewAPI(uamRouters)
-	jweInterceptor := interceptor.NewJWEInterceptor(casbinXs)
-	interceptors := interceptor.New(jweInterceptor)
+	authMiddleware := middleware.NewAuthMiddleware(casbinXs)
+	middlewares := middleware.New(authMiddleware)
+	uamAPI := NewAPI(uamRouters, middlewares)
+	authInterceptor := interceptor.NewJWEInterceptor(casbinXs)
+	interceptors := interceptor.New(authInterceptor)
 	authServer := auth.NewServer(userUseCase, authUseCase)
 	roleServer := role.NewServer(useCase)
 	userServer := user.NewServer(userUseCase, useCase)

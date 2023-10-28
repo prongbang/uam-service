@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
+	"github.com/prongbang/uam-service/internal/uam/middleware"
 )
 
 type API interface {
@@ -13,7 +14,8 @@ type API interface {
 }
 
 type api struct {
-	Routers Routers
+	Routers     Routers
+	Middlewares middleware.Middlewares
 }
 
 func (a *api) Register() {
@@ -28,6 +30,7 @@ func (a *api) Register() {
 		AllowHeaders: "X-Platform, X-Api-Key, Authorization, Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Origin, Content-Type, Accept",
 		AllowMethods: "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS",
 	}))
+	app.Use(a.Middlewares.Auth.New())
 
 	// Routers
 	a.Routers.Initials(app)
@@ -36,8 +39,9 @@ func (a *api) Register() {
 	_ = app.Listen(":9001")
 }
 
-func NewAPI(router Routers) API {
+func NewAPI(router Routers, middlewares middleware.Middlewares) API {
 	return &api{
-		Routers: router,
+		Routers:     router,
+		Middlewares: middlewares,
 	}
 }
