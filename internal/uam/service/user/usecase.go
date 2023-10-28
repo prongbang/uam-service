@@ -15,7 +15,7 @@ type UseCase interface {
 	GetList(params Params) []User
 	GetById(params ParamsGetById) User
 	Add(data *CreateUser) (User, *core.Error)
-	Update(data *UpdateUser) *core.Error
+	Update(data *UpdateUser) (User, *core.Error)
 	UpdatePassword(data *Password) error
 	UpdateLastLogin(userId string) error
 	Delete(id string) error
@@ -85,13 +85,13 @@ func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
 	return usr, nil
 }
 
-func (u *useCase) Update(data *UpdateUser) *core.Error {
+func (u *useCase) Update(data *UpdateUser) (User, *core.Error) {
 	// Check permissions
 	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
 		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
 			// Check my user
-			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) || data.ID != data.Payload.UserID {
-				return &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
+			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.ID != data.Payload.UserID {
+				return User{}, &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
 			}
 		}
 	}
@@ -99,14 +99,14 @@ func (u *useCase) Update(data *UpdateUser) *core.Error {
 	if data.Email != "" {
 		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(&rs.ID) {
 			if rs.ID != data.ID {
-				return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+				return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 			}
 		}
 	}
 	if data.Username != "" {
 		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(&rs.ID) {
 			if rs.ID != data.ID {
-				return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
+				return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 			}
 		}
 	}
@@ -116,10 +116,12 @@ func (u *useCase) Update(data *UpdateUser) *core.Error {
 
 	err := u.Repo.Update(data)
 	if err != nil {
-		return &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
+		return User{}, &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
 	}
 
-	return nil
+	usr := u.GetById(ParamsGetById{ID: data.ID, Payload: data.Payload})
+
+	return usr, nil
 }
 
 func (u *useCase) UpdatePassword(data *Password) error {

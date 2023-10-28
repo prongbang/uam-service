@@ -113,15 +113,15 @@ func (h *handler) Update(c *fiber.Ctx) error {
 	_ = c.BodyParser(&body)
 
 	if usr := h.UserUc.GetById(ParamsGetById{ID: body.ID, Payload: payload}); core.IsUuid(usr.ID) {
-		if err := h.UserUc.Update(&body); err != nil {
+		us, err := h.UserUc.Update(&body)
+		if err != nil {
 			return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 		}
-		usr = h.UserUc.GetById(ParamsGetById{ID: body.ID})
 
 		// Reset sensitive data
-		usr.Password = ""
+		us.Password = ""
 
-		return core.Ok(c, usr)
+		return core.Ok(c, us)
 	}
 
 	return core.NotFound(c)

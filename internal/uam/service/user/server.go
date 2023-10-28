@@ -76,8 +76,39 @@ func (s *server) Add(ctx context.Context, request *UserCreateRequest) (*UserResp
 }
 
 func (s *server) Update(ctx context.Context, request *UserUpdateRequest) (*UserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	payload := core.GrpcPayload(request.GetToken())
+
+	if (request.Username != "" && len(request.Username) < UsernameMin) || (request.Email != "" && !common.IsEmail(request.Email)) {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	body := UpdateUser{
+		ID:        request.Id,
+		Username:  request.Username,
+		Email:     request.Email,
+		FirstName: request.FirstName,
+		LastName:  request.LastName,
+		Avatar:    request.Avatar,
+		Mobile:    request.Mobile,
+		Payload:   payload,
+	}
+
+	// Check user under
+	us := s.UserUc.GetById(ParamsGetById{ID: body.ID, Payload: payload})
+	if us.ID == nil {
+		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
+	}
+
+	usr, err := s.UserUc.Update(&body)
+	if err != nil {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, (*err).Message)).Err()
+	}
+
+	return &UserResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+		Data:    FromUserMapper(usr),
+	}, nil
 }
 
 func (s *server) UpdatePassword(ctx context.Context, request *UserUpdatePasswordRequest) (*UserResponse, error) {
