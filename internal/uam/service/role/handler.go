@@ -20,7 +20,7 @@ func (h *handler) GetById(c *fiber.Ctx) error {
 	b := GetByIdRequest{}
 	_ = c.BodyParser(&b)
 
-	params := ParamsGetById{ID: b.ID, UserID: payload.Sub}
+	params := ParamsGetById{ID: b.ID, UserID: payload.UserID}
 	data := h.RoleUc.GetById(params)
 	if data.ID == "" {
 		return core.NotFound(c)
@@ -33,7 +33,7 @@ func (h *handler) GetList(c *fiber.Ctx) error {
 	payload := core.HttpPayload(c)
 
 	params := Params{
-		UserID: payload.Sub,
+		UserID: payload.UserID,
 	}
 	res := h.RoleUc.GetList(params)
 

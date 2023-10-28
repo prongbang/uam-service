@@ -27,4 +27,5 @@ const (
 	StatusNotifyEmailFail          = "NTF002"
 	StatusNotifyLineFail           = "NTF003"
 	StatusDataInvalid              = "IVL001"
+	StatusPermissionDenied         = "PEM001"
 )

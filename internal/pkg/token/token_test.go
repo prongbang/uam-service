@@ -18,8 +18,8 @@ func TestGenerateKeyString(t *testing.T) {
 
 func TestNew(t *testing.T) {
 	payload := token.Claims{
-		Exp: time.Now().AddDate(1000, 0, 0).Unix(),
-		Sub: "d4a45b08-825b-4c5f-8a63-fa8991dd0945",
+		Exp:    time.Now().AddDate(1000, 0, 0).Unix(),
+		UserID: "d4a45b08-825b-4c5f-8a63-fa8991dd0945",
 		Roles: []string{
 			"1a55b471-78b8-45f6-a548-6e436a002619",
 			"2ed000b0-c93d-42cb-8def-77138584778a",
@@ -44,7 +44,7 @@ func TestVerify(t *testing.T) {
 
 	actual, err := token.Verify(jweCompact, key)
 
-	if err != nil || actual.Sub != sub {
+	if err != nil || actual.UserID != sub {
 		t.Error(err)
 	}
 	fmt.Println(sub, actual)

@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/prongbang/uam-service/internal/pkg/token"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/pkg/core"
 	"github.com/uptrace/bun"
@@ -43,35 +44,38 @@ type User struct {
 
 type CreateUser struct {
 	bun.BaseModel `bun:"table:users,alias:u"`
-	ID            *string `json:"id" bun:"id,pk,type:uuid"`
-	Username      string  `json:"username" bun:"username"`
-	Password      string  `json:"password" bun:"password" validate:"required"`
-	Email         string  `json:"email" bun:"email"`
-	FirstName     string  `json:"firstName" bun:"first_name"`
-	LastName      string  `json:"lastName" bun:"last_name"`
-	Avatar        string  `json:"avatar" bun:"avatar"`
-	Mobile        string  `json:"mobile" bun:"mobile"`
-	CreatedBy     string  `json:"createdBy" bun:"-"`
+	ID            *string      `json:"id" bun:"id,pk,type:uuid"`
+	Username      string       `json:"username" bun:"username"`
+	Password      string       `json:"password" bun:"password" validate:"required"`
+	Email         string       `json:"email" bun:"email"`
+	FirstName     string       `json:"firstName" bun:"first_name"`
+	LastName      string       `json:"lastName" bun:"last_name"`
+	Avatar        string       `json:"avatar" bun:"avatar"`
+	Mobile        string       `json:"mobile" bun:"mobile"`
+	CreatedBy     string       `json:"createdBy" bun:"-"`
+	Payload       token.Claims `bun:"-"`
 }
 
 type UpdateUser struct {
 	bun.BaseModel `bun:"table:users,alias:u"`
-	ID            string     `json:"id" bun:"id,pk,type:uuid"`
-	Username      string     `json:"username" bun:"username"`
-	Password      string     `json:"-"`
-	Email         string     `json:"email" bun:"email"`
-	FirstName     string     `json:"firstName" bun:"first_name"`
-	LastName      string     `json:"lastName" bun:"last_name"`
-	Avatar        string     `json:"avatar" bun:"avatar"`
-	Mobile        string     `json:"mobile" bun:"mobile"`
-	LastLogin     *time.Time `json:"-" bun:"last_login"`
-	Flag          int        `json:"-" bun:"flag"`
+	ID            string       `json:"id" bun:"id,pk,type:uuid"`
+	Username      string       `json:"username" bun:"username"`
+	Password      string       `json:"-"`
+	Email         string       `json:"email" bun:"email"`
+	FirstName     string       `json:"firstName" bun:"first_name"`
+	LastName      string       `json:"lastName" bun:"last_name"`
+	Avatar        string       `json:"avatar" bun:"avatar"`
+	Mobile        string       `json:"mobile" bun:"mobile"`
+	LastLogin     *time.Time   `json:"-" bun:"last_login"`
+	Flag          int          `json:"-" bun:"flag"`
+	Payload       token.Claims `bun:"-"`
 }
 
 type Password struct {
 	UserID          string `json:"userId" validate:"required"`
 	NewPassword     string `json:"newPassword" validate:"required"`
 	CurrentPassword string `json:"currentPassword" validate:"required"`
+	Payload         token.Claims
 }
 
 type MyPassword struct {
@@ -82,10 +86,12 @@ type MyPassword struct {
 
 type Params struct {
 	core.Params
-	UserID string
+	Permission string
+	Payload    token.Claims
 }
 
 type ParamsGetById struct {
-	ID     string
-	UserID string
+	ID         string
+	Permission string
+	Payload    token.Claims
 }

@@ -3,6 +3,7 @@ package user
 import (
 	"errors"
 	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/uam/service/permissions"
 	"github.com/prongbang/uam-service/pkg/code"
 	"github.com/prongbang/uam-service/pkg/core"
 	"github.com/prongbang/uam-service/pkg/cryptox"
@@ -21,22 +22,48 @@ type UseCase interface {
 }
 
 type useCase struct {
-	Repo Repository
+	Repo    Repository
+	PermsUc permissions.UseCase
 }
 
 func (u *useCase) Count(params Params) int64 {
+	if u.PermsUc.IsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
+		params.Permission = permissions.All
+	}
+
 	return u.Repo.Count(params)
 }
 
 func (u *useCase) GetList(params Params) []User {
+	if u.PermsUc.IsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
+		params.Permission = permissions.All
+	}
+
 	return u.Repo.GetList(params)
 }
 
 func (u *useCase) GetById(params ParamsGetById) User {
+	// Check permissions
+	if u.PermsUc.IsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
+		params.Permission = permissions.All
+	} else if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.Read) {
+		// Check my user
+		if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.ReadMe) || params.ID != params.Payload.UserID {
+			return User{}
+		}
+	}
+
 	return u.Repo.GetById(params)
 }
 
 func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
+	// Check permissions
+	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if !u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Create) {
+			return User{}, &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
+		}
+	}
+
 	if data.Email != "" {
 		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
 			return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
@@ -53,12 +80,22 @@ func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
 		return User{}, &core.Error{Code: code.StatusDataInvalid, Message: err.Error()}
 	}
 
-	usr := u.Repo.GetById(ParamsGetById{ID: *data.ID, UserID: data.CreatedBy})
+	usr := u.GetById(ParamsGetById{ID: *data.ID, Payload: data.Payload})
 
 	return usr, nil
 }
 
 func (u *useCase) Update(data *UpdateUser) *core.Error {
+	// Check permissions
+	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
+			// Check my user
+			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) || data.ID != data.Payload.UserID {
+				return &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
+			}
+		}
+	}
+
 	if data.Email != "" {
 		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
 			if *rs.ID != data.ID {
@@ -105,8 +142,9 @@ func (u *useCase) Delete(id string) error {
 	return u.Repo.Delete(id)
 }
 
-func NewUseCase(repo Repository) UseCase {
+func NewUseCase(repo Repository, permsUc permissions.UseCase) UseCase {
 	return &useCase{
-		Repo: repo,
+		Repo:    repo,
+		PermsUc: permsUc,
 	}
 }

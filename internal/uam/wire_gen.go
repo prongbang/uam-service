@@ -12,6 +12,7 @@ import (
 	"github.com/prongbang/uam-service/internal/uam/interceptor"
 	"github.com/prongbang/uam-service/internal/uam/service/auth"
 	"github.com/prongbang/uam-service/internal/uam/service/forgot"
+	"github.com/prongbang/uam-service/internal/uam/service/permissions"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/internal/uam/service/user"
 	"github.com/prongbang/uam-service/internal/uam/service/user_creator"
@@ -29,7 +30,8 @@ func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 	userDataSource := user.NewDataSource(dbDriver)
 	user_creatorDataSource := user_creator.NewDataSource(dbDriver)
 	userRepository := user.NewRepository(userDataSource, user_creatorDataSource)
-	userUseCase := user.NewUseCase(userRepository)
+	permissionsUseCase := permissions.NewUseCase(casbinXs)
+	userUseCase := user.NewUseCase(userRepository, permissionsUseCase)
 	authUseCase := auth.NewUseCase(repository, useCase, userUseCase)
 	handler := auth.NewHandler(authUseCase)
 	validate := auth.NewValidate()

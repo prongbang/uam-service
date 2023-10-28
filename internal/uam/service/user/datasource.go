@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/uam/database"
+	"github.com/prongbang/uam-service/internal/uam/service/permissions"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/pkg/core"
 	"github.com/prongbang/uam-service/pkg/cryptox"
@@ -45,9 +46,8 @@ func (d *dataSource) Count(params Params) int64 {
 `
 	joins := ""
 	args := []any{}
-	level := d.GetLevelById(params.UserID)
-	if level > role.Level1 {
-		args = []any{params.UserID, params.UserID}
+	if params.Permission != permissions.All {
+		args = []any{params.Payload.UserID, params.Payload.UserID}
 		joins = "INNER JOIN users_creators uc ON uc.user_id = u.id AND (uc.created_by = ? OR uc.user_id = ?)"
 	}
 
@@ -88,9 +88,8 @@ func (d *dataSource) GetList(params Params) []User {
 
 	joins := ""
 	args := []any{}
-	level := d.GetLevelById(params.UserID)
-	if level > role.Level1 {
-		args = []any{params.UserID, params.UserID}
+	if params.Permission != permissions.All {
+		args = []any{params.Payload.UserID, params.Payload.UserID}
 		joins = "INNER JOIN users_creators uc ON uc.user_id = u.id AND (uc.created_by = ? OR uc.user_id = ?)"
 	}
 
@@ -149,9 +148,8 @@ func (d *dataSource) GetById(params ParamsGetById) User {
 
 	joins := ""
 	args := []any{}
-	level := d.GetLevelById(params.UserID)
-	if level > role.Level1 {
-		args = []any{params.UserID, params.UserID}
+	if params.Permission != permissions.All {
+		args = []any{params.Payload.UserID, params.Payload.UserID}
 		joins = "INNER JOIN users_creators uc ON uc.user_id = u.id AND (uc.created_by = ? OR uc.user_id = ?)"
 	}
 	args = append(args, params.ID, core.FlagAvailable)

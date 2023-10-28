@@ -18,7 +18,7 @@ func (s server) GetList(ctx context.Context, request *RoleListRequest) (*RoleLis
 	payload := core.GrpcPayload(request.GetToken())
 
 	params := Params{
-		UserID: payload.Sub,
+		UserID: payload.UserID,
 	}
 	data := s.RoleUc.GetList(params)
 
@@ -95,7 +95,7 @@ func (s server) GetById(ctx context.Context, request *RoleIdRequest) (*RoleRespo
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
 	}
 
-	params := ParamsGetById{ID: request.GetId(), UserID: payload.Sub}
+	params := ParamsGetById{ID: request.GetId(), UserID: payload.UserID}
 	data := s.RoleUc.GetById(params)
 	if data.ID == "" {
 		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()

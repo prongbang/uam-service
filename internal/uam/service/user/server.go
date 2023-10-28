@@ -25,7 +25,11 @@ func (s *server) GetById(ctx context.Context, request *UserIdRequest) (*UserResp
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
 	}
 
-	data := s.UserUc.GetById(ParamsGetById{ID: id, UserID: payload.Sub})
+	params := ParamsGetById{
+		ID:      id,
+		Payload: payload,
+	}
+	data := s.UserUc.GetById(params)
 	if !core.IsUuid(data.ID) {
 		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 	}
@@ -56,7 +60,8 @@ func (s *server) Add(ctx context.Context, request *UserCreateRequest) (*UserResp
 		LastName:  request.LastName,
 		Avatar:    request.Avatar,
 		Mobile:    request.Mobile,
-		CreatedBy: payload.Sub,
+		CreatedBy: payload.UserID,
+		Payload:   payload,
 	}
 	usr, err := s.UserUc.Add(&body)
 	if err != nil {
@@ -93,7 +98,8 @@ func (s *server) Delete(ctx context.Context, request *UserDeleteRequest) (*UserD
 func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserResponse, error) {
 	payload := core.GrpcPayload(request.GetToken())
 
-	data := s.UserUc.GetById(ParamsGetById{ID: payload.Sub, UserID: payload.Sub})
+	params := ParamsGetById{ID: payload.UserID, Payload: payload}
+	data := s.UserUc.GetById(params)
 	if !core.IsUuid(data.ID) {
 		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
 	}
@@ -116,7 +122,7 @@ func (s *server) GetList(ctx context.Context, request *UserListRequest) (*UserLi
 	}
 
 	params := Params{
-		UserID: payload.Sub,
+		Payload: payload,
 	}
 
 	getCount := func() int64 { return s.UserUc.Count(params) }

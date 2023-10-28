@@ -12,6 +12,11 @@ const (
 	GRPC = "gRPC"
 )
 
+// https://casbin.org/docs/admin-portal/
+// - https://casdoor.org/docs/overview
+// - https://github.com/flipped-aurora/gin-vue-admin
+// - https://github.com/go-admin-team/go-admin
+// - https://medium.com/silo-blog/designing-a-flexible-permissions-system-with-casbin-f5d97fef17b8
 func NewCasbinX(modelPolicy string) *casbin.Enforcer {
 	// Initialize a PGX adapter and use it in a Casbin enforcer:
 	// The adapter will use the Postgres database named "casbin".

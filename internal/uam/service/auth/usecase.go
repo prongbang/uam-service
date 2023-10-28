@@ -48,9 +48,9 @@ func (u *useCase) LoginWithEmail(data Login) (Credential, error) {
 func (u *useCase) GetCredentialByUserId(userId string) (Credential, error) {
 	roles := u.RoleUc.GetListByUserIdString(userId)
 	payload := token.Claims{
-		Exp:   time.Now().AddDate(0, 0, 1).Unix(),
-		Sub:   userId,
-		Roles: roles,
+		Exp:    time.Now().AddDate(0, 0, 1).Unix(),
+		UserID: userId,
+		Roles:  roles,
 	}
 	key, _ := token.GetKeyBytes()
 	accessToken, err := token.New(payload, key)

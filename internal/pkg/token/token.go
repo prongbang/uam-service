@@ -21,10 +21,10 @@ type AccessToken struct {
 }
 
 type Claims struct {
-	Exp   int64    `json:"exp"`
-	Iss   string   `json:"iss"`
-	Sub   string   `json:"sub"`
-	Roles []string `json:"roles"`
+	Exp    int64    `json:"exp"`
+	Iss    string   `json:"iss"`
+	UserID string   `json:"sub"`
+	Roles  []string `json:"roles"`
 }
 
 func Parse(req any) *AccessToken {
