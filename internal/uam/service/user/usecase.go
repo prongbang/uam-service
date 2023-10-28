@@ -48,7 +48,7 @@ func (u *useCase) GetById(params ParamsGetById) User {
 		params.Permission = permissions.All
 	} else if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.Read) {
 		// Check my user
-		if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.ReadMe) || params.ID != params.Payload.UserID {
+		if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.ReadMe) && params.ID != params.Payload.UserID {
 			return User{}
 		}
 	}
@@ -65,12 +65,12 @@ func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
 	}
 
 	if data.Email != "" {
-		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
+		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(&rs.ID) {
 			return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 		}
 	}
 	if data.Username != "" {
-		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(rs.ID) {
+		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(&rs.ID) {
 			return User{}, &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 		}
 	}
@@ -97,15 +97,15 @@ func (u *useCase) Update(data *UpdateUser) *core.Error {
 	}
 
 	if data.Email != "" {
-		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(rs.ID) {
-			if *rs.ID != data.ID {
+		if rs := u.Repo.GetByEmail(data.Email); core.IsUuid(&rs.ID) {
+			if rs.ID != data.ID {
 				return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 			}
 		}
 	}
 	if data.Username != "" {
-		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(rs.ID) {
-			if *rs.ID != data.ID {
+		if rs := u.Repo.GetByUsername(data.Username); core.IsUuid(&rs.ID) {
+			if rs.ID != data.ID {
 				return &core.Error{Code: code.StatusDataDuplicated, Message: localizations.CommonDataDuplicated}
 			}
 		}

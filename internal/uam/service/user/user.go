@@ -25,6 +25,14 @@ type DeleteByIdRequest struct {
 	BodyIdRequest
 }
 
+type BasicUser struct {
+	bun.BaseModel `bun:"table:users,alias:u"`
+	ID            string `json:"id" bun:"id,pk,type:uuid"`
+	Username      string `json:"username" bun:"username"`
+	Password      string `json:"password,omitempty" bun:"password"`
+	Email         string `json:"email" bun:"email"`
+}
+
 type User struct {
 	bun.BaseModel `bun:"table:users,alias:u"`
 	ID            *string     `json:"id" bun:"id,pk,type:uuid"`
@@ -37,7 +45,7 @@ type User struct {
 	Avatar        string      `json:"avatar" bun:"avatar"`
 	Mobile        string      `json:"mobile" bun:"mobile"`
 	Flag          int         `json:"-" bun:"flag"`
-	RolesJson     string      `json:"-" bun:"roles_json"`
+	RolesJson     *string     `json:"-" bun:"roles_json"`
 	Roles         []role.Role `json:"roles" bun:"-"`
 	core.Model
 }

@@ -24,11 +24,11 @@ import (
 
 func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 	dataSource := auth.NewDataSource(dbDriver)
-	repository := auth.NewRepository(dataSource)
+	userDataSource := user.NewDataSource(dbDriver)
+	repository := auth.NewRepository(dataSource, userDataSource)
 	roleDataSource := role.NewDataSource(dbDriver)
 	roleRepository := role.NewRepository(roleDataSource)
 	useCase := role.NewUseCase(roleRepository)
-	userDataSource := user.NewDataSource(dbDriver)
 	user_creatorDataSource := user_creator.NewDataSource(dbDriver)
 	userRepository := user.NewRepository(userDataSource, user_creatorDataSource)
 	permissionsUseCase := permissions.NewUseCase(casbinXs)

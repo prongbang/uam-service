@@ -37,9 +37,9 @@ func (u *useCase) LoginWithEmail(data Login) (Credential, error) {
 
 	valid := cryptox.VerifyPassword(data.Password, usr.Password)
 	if valid {
-		_ = u.UserUc.UpdateLastLogin(*usr.ID)
+		_ = u.UserUc.UpdateLastLogin(usr.ID)
 
-		return u.GetCredentialByUserId(*usr.ID)
+		return u.GetCredentialByUserId(usr.ID)
 	}
 
 	return Credential{}, errors.New(localizations.CommonInvalidData)
@@ -73,9 +73,9 @@ func (u *useCase) LoginWithUsername(data Login) (Credential, error) {
 
 	valid := cryptox.VerifyPassword(data.Password, usr.Password)
 	if valid {
-		_ = u.UserUc.UpdateLastLogin(*usr.ID)
+		_ = u.UserUc.UpdateLastLogin(usr.ID)
 
-		return u.GetCredentialByUserId(*usr.ID)
+		return u.GetCredentialByUserId(usr.ID)
 	}
 
 	return Credential{}, errors.New(localizations.CommonInvalidData)

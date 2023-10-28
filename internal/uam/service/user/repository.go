@@ -8,8 +8,8 @@ type Repository interface {
 	Count(params Params) int64
 	GetList(params Params) []User
 	GetById(params ParamsGetById) User
-	GetByEmail(email string) User
-	GetByUsername(username string) User
+	GetByEmail(email string) BasicUser
+	GetByUsername(username string) BasicUser
 	Add(data *CreateUser) error
 	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
@@ -33,11 +33,11 @@ func (r *repository) GetById(params ParamsGetById) User {
 	return r.Ds.GetById(params)
 }
 
-func (r *repository) GetByEmail(email string) User {
+func (r *repository) GetByEmail(email string) BasicUser {
 	return r.Ds.GetByEmail(email)
 }
 
-func (r *repository) GetByUsername(username string) User {
+func (r *repository) GetByUsername(username string) BasicUser {
 	return r.Ds.GetByUsername(username)
 }
 

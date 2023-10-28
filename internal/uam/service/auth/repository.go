@@ -5,24 +5,26 @@ import (
 )
 
 type Repository interface {
-	GetByUsername(username string) user.User
-	GetByEmail(email string) user.User
+	GetByUsername(username string) user.BasicUser
+	GetByEmail(email string) user.BasicUser
 }
 
 type repository struct {
-	Ds DataSource
+	Ds     DataSource
+	UserDs user.DataSource
 }
 
-func (r *repository) GetByUsername(username string) user.User {
-	return r.Ds.GetByUsername(username)
+func (r *repository) GetByUsername(username string) user.BasicUser {
+	return r.UserDs.GetByUsername(username)
 }
 
-func (r *repository) GetByEmail(email string) user.User {
-	return r.Ds.GetByEmail(email)
+func (r *repository) GetByEmail(email string) user.BasicUser {
+	return r.UserDs.GetByEmail(email)
 }
 
-func NewRepository(ds DataSource) Repository {
+func NewRepository(ds DataSource, userDs user.DataSource) Repository {
 	return &repository{
-		Ds: ds,
+		Ds:     ds,
+		UserDs: userDs,
 	}
 }

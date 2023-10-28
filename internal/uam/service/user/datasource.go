@@ -19,8 +19,8 @@ type DataSource interface {
 	GetList(params Params) []User
 	GetById(params ParamsGetById) User
 	GetLevelById(userId string) int
-	GetByEmail(email string) User
-	GetByUsername(username string) User
+	GetByEmail(email string) BasicUser
+	GetByUsername(username string) BasicUser
 	Add(data *CreateUser) error
 	AddTx(data *CreateUser) (*bun.Tx, error)
 	Update(data *UpdateUser) error
@@ -113,7 +113,9 @@ func (d *dataSource) GetList(params Params) []User {
 		// Parse json to list
 		for i, u := range rows {
 			r := []role.Role{}
-			_ = json.Unmarshal([]byte(u.RolesJson), &r)
+			if u.RolesJson != nil {
+				_ = json.Unmarshal([]byte(*u.RolesJson), &r)
+			}
 			rows[i].Roles = r
 		}
 
@@ -167,7 +169,9 @@ func (d *dataSource) GetById(params ParamsGetById) User {
 		// Parse json to list
 		for i, u := range rows {
 			r := []role.Role{}
-			_ = json.Unmarshal([]byte(u.RolesJson), &r)
+			if u.RolesJson != nil {
+				_ = json.Unmarshal([]byte(*u.RolesJson), &r)
+			}
 			rows[i].Roles = r
 		}
 
@@ -199,36 +203,38 @@ func (d *dataSource) GetLevelById(userId string) int {
 	return 0
 }
 
-func (d *dataSource) GetByEmail(email string) User {
+func (d *dataSource) GetByUsername(username string) BasicUser {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	var rows []User
-	err := db.NewSelect().Model(&rows).Where("u.email = ?", email).Limit(1).Scan(ctx)
+	item := BasicUser{}
+	err := db.NewSelect().
+		Model(&item).
+		ColumnExpr("u.id, u.username, u.email, u.password").
+		Where("u.username = ?", username).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
-		return User{}
 	}
-	if len(rows) > 0 {
-		return rows[0]
-	}
-	return User{}
+
+	return item
 }
 
-func (d *dataSource) GetByUsername(username string) User {
+func (d *dataSource) GetByEmail(email string) BasicUser {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	var rows []User
-	err := db.NewSelect().Model(&rows).Where("u.username = ?", username).Limit(1).Scan(ctx)
+	item := BasicUser{}
+	err := db.NewSelect().
+		Model(&item).
+		ColumnExpr("u.id, u.username, u.email, u.password").
+		Where("u.email = ?", email).
+		Scan(ctx)
 	if err != nil {
 		fmt.Println(err)
-		return User{}
 	}
-	if len(rows) > 0 {
-		return rows[0]
-	}
-	return User{}
+
+	return item
 }
 
 func (d *dataSource) Add(data *CreateUser) error {
