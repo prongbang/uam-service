@@ -93,12 +93,6 @@ func (s *server) Update(ctx context.Context, request *UserUpdateRequest) (*UserR
 		Payload:   payload,
 	}
 
-	// Check user under
-	us := s.UserUc.GetById(ParamsGetById{ID: body.ID, Payload: payload})
-	if us.ID == nil {
-		return nil, status.New(codes.NotFound, core.TranslateCtx(ctx, localizations.CommonNotFoundData)).Err()
-	}
-
 	usr, err := s.UserUc.Update(&body)
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, (*err).Message)).Err()

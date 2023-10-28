@@ -93,6 +93,12 @@ func (u *useCase) Update(data *UpdateUser) (User, *core.Error) {
 			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.ID != data.Payload.UserID {
 				return User{}, &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
 			}
+
+			// Check user under
+			us := u.GetById(ParamsGetById{ID: data.ID, Payload: data.Payload})
+			if us.ID == nil {
+				return User{}, &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
+			}
 		}
 	}
 
