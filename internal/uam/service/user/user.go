@@ -79,6 +79,11 @@ type UpdateUser struct {
 	Payload       token.Claims `bun:"-"`
 }
 
+type DeleteUser struct {
+	ID      string
+	Payload token.Claims
+}
+
 type Password struct {
 	UserID          string `json:"userId" validate:"required"`
 	NewPassword     string `json:"newPassword" validate:"required"`

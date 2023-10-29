@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/uam/bunx"
 	"github.com/prongbang/uam-service/internal/uam/database"
 	"github.com/prongbang/uam-service/internal/uam/service/permissions"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
@@ -25,7 +26,7 @@ type DataSource interface {
 	AddTx(data *CreateUser) (*bun.Tx, error)
 	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
-	Delete(id string) error
+	DeleteTx(id string) (*bun.Tx, error)
 }
 
 type dataSource struct {
@@ -338,19 +339,14 @@ func (d *dataSource) UpdatePassword(userId string, password string) error {
 	return errors.New(localizations.CommonCannotAddData)
 }
 
-func (d *dataSource) Delete(id string) error {
+func (d *dataSource) DeleteTx(id string) (*bun.Tx, error) {
 	db := d.Driver.GetPqDB()
-	ctx := context.Background()
-	rs, err := db.NewDelete().
-		Table("users").
-		Where("id = ?", id).
-		Exec(ctx)
+
+	tx, err := bunx.DeleteTx(db, "users", "id = ?", []any{id})
 	if err == nil {
-		if row, e := rs.RowsAffected(); e == nil && row > 0 {
-			return nil
-		}
+		return tx, nil
 	}
-	return errors.New(localizations.CommonCannotDeleteData)
+	return tx, errors.New(localizations.CommonCannotDeleteData)
 }
 
 func NewDataSource(

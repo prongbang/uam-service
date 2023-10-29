@@ -132,13 +132,11 @@ func (h *handler) Delete(c *fiber.Ctx) error {
 	body := DeleteByIdRequest{}
 	_ = c.BodyParser(&body)
 
-	if usr := h.UserUc.GetById(ParamsGetById{ID: body.ID, Payload: payload}); usr.ID != nil && *usr.ID == body.ID {
-		if err := h.UserUc.Delete(body.ID); err != nil {
-			return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
-		}
-		return core.Ok(c, nil)
+	data := DeleteUser{ID: body.ID, Payload: payload}
+	if err := h.UserUc.Delete(data); err != nil {
+		return core.BadRequest(c, core.Translate(c, localizations.CommonInvalidData))
 	}
-	return core.NotFound(c)
+	return core.Ok(c, nil)
 }
 
 func NewHandler(userUc UseCase) Handler {

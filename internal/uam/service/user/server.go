@@ -116,8 +116,22 @@ func (s *server) UpdatePasswordMe(ctx context.Context, request *UserUpdatePasswo
 }
 
 func (s *server) Delete(ctx context.Context, request *UserDeleteRequest) (*UserDeleteResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	payload := core.GrpcPayload(request.GetToken())
+
+	id := request.GetId()
+	if core.IsNotUuid(&id) {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	// Check user under
+	body := DeleteUser{ID: id, Payload: payload}
+	if err := s.UserUc.Delete(body); err != nil {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+	return &UserDeleteResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+	}, nil
 }
 
 func (s *server) GetMe(ctx context.Context, request *UserMeRequest) (*UserResponse, error) {

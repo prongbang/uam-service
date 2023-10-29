@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"github.com/prongbang/uam-service/internal/localizations"
+	"github.com/prongbang/uam-service/internal/uam/bunx"
 	"github.com/prongbang/uam-service/internal/uam/database"
 	"github.com/uptrace/bun"
 )
 
 type DataSource interface {
 	AddTx(data *CreateUserCreator) (*bun.Tx, error)
+	DeleteTx(data *DeleteUserCreator) (*bun.Tx, error)
 }
 
 type dataSource struct {
@@ -34,6 +36,22 @@ func (d *dataSource) AddTx(data *CreateUserCreator) (*bun.Tx, error) {
 		return &tx, errors.New(localizations.CommonCannotAddData)
 	}
 	return &tx, errors.New(localizations.CommonCannotAddData)
+}
+
+func (d *dataSource) DeleteTx(data *DeleteUserCreator) (*bun.Tx, error) {
+	db := d.Driver.GetPqDB()
+
+	wheres := "user_id = ? AND created_by = ?"
+	args := []any{
+		data.UserID,
+		data.CreatedBy,
+	}
+
+	tx, err := bunx.DeleteTx(db, "users_creators", wheres, args)
+	if err == nil {
+		return tx, nil
+	}
+	return tx, errors.New(localizations.CommonCannotDeleteData)
 }
 
 func NewDataSource(

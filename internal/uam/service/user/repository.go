@@ -13,7 +13,7 @@ type Repository interface {
 	Add(data *CreateUser) error
 	Update(data *UpdateUser) error
 	UpdatePassword(userId string, password string) error
-	Delete(id string) error
+	Delete(data DeleteUser) error
 }
 
 type repository struct {
@@ -65,8 +65,20 @@ func (r *repository) UpdatePassword(userId string, password string) error {
 	return r.Ds.UpdatePassword(userId, password)
 }
 
-func (r *repository) Delete(id string) error {
-	return r.Ds.Delete(id)
+func (r *repository) Delete(data DeleteUser) error {
+	param1 := &user_creator.DeleteUserCreator{UserID: data.ID, CreatedBy: data.Payload.UserID}
+	tx1, err := r.UserCreatorDs.DeleteTx(param1)
+	if err == nil {
+		if tx1.Commit() == nil {
+			tx2, err2 := r.Ds.DeleteTx(data.ID)
+			if err2 == nil {
+				return tx2.Commit()
+			}
+			return err2
+		}
+		return tx1.Rollback()
+	}
+	return err
 }
 
 func NewRepository(ds DataSource, userCreatorDs user_creator.DataSource) Repository {

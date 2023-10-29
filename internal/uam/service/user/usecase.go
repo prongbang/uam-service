@@ -18,7 +18,7 @@ type UseCase interface {
 	Update(data *UpdateUser) (User, *core.Error)
 	UpdatePassword(data *Password) error
 	UpdateLastLogin(userId string) error
-	Delete(id string) error
+	Delete(data DeleteUser) error
 }
 
 type useCase struct {
@@ -146,8 +146,24 @@ func (u *useCase) UpdateLastLogin(userId string) error {
 	})
 }
 
-func (u *useCase) Delete(id string) error {
-	return u.Repo.Delete(id)
+func (u *useCase) Delete(data DeleteUser) error {
+	// Check permissions
+	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Delete) {
+			// Check my user
+			if data.ID == data.Payload.UserID {
+				return errors.New(localizations.CommonPermissionDenied)
+			}
+
+			// Check user under
+			us := u.GetById(ParamsGetById{ID: data.ID, Payload: data.Payload})
+			if us.ID == nil {
+				return errors.New(localizations.CommonNotFoundData)
+			}
+		}
+	}
+
+	return u.Repo.Delete(data)
 }
 
 func NewUseCase(repo Repository, permsUc permissions.UseCase) UseCase {

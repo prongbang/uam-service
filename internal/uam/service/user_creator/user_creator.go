@@ -8,3 +8,8 @@ type CreateUserCreator struct {
 	UserID        string  `json:"userId" bun:"user_id,type:uuid"`
 	CreatedBy     string  `json:"createdBy" bun:"created_by,type:uuid"`
 }
+
+type DeleteUserCreator struct {
+	UserID    string
+	CreatedBy string
+}
