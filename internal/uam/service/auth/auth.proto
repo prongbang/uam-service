@@ -20,6 +20,17 @@ message AuthResponse {
   AuthCredential data = 2;
 }
 
+message AuthVerifyTokenRequest {
+  string token = 1;
+}
+
+message AuthVerifyTokenResponse {
+  string code = 1;
+  string message = 2;
+}
+
+
 service Auth {
   rpc Login (AuthRequest) returns (AuthResponse);
+  rpc VerifyToken (AuthVerifyTokenRequest) returns (AuthVerifyTokenResponse);
 }

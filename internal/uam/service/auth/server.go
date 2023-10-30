@@ -9,11 +9,24 @@ import (
 	"github.com/prongbang/uam-service/pkg/core"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"net/http"
 )
 
 type server struct {
 	Uc     user.UseCase
 	AuthUc UseCase
+}
+
+func (u *server) VerifyToken(ctx context.Context, request *AuthVerifyTokenRequest) (*AuthVerifyTokenResponse, error) {
+	accessToken := request.GetToken()
+
+	if err := u.AuthUc.VerifyToken(accessToken); err != nil {
+		return nil, status.New(codes.Unauthenticated, core.TranslateCtx(ctx, localizations.CommonUnauthenticated)).Err()
+	}
+	return &AuthVerifyTokenResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+	}, nil
 }
 
 func (u *server) Login(ctx context.Context, request *AuthRequest) (*AuthResponse, error) {

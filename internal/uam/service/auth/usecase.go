@@ -14,6 +14,7 @@ type UseCase interface {
 	Login(data Login) (Credential, error)
 	LoginWithEmail(data Login) (Credential, error)
 	LoginWithUsername(data Login) (Credential, error)
+	VerifyToken(accessToken string) error
 }
 
 type useCase struct {
@@ -79,6 +80,11 @@ func (u *useCase) LoginWithUsername(data Login) (Credential, error) {
 	}
 
 	return Credential{}, errors.New(localizations.CommonInvalidData)
+}
+
+func (u *useCase) VerifyToken(accessToken string) error {
+	_, err := token.Verification(accessToken)
+	return err
 }
 
 func NewUseCase(repo Repository, roleUc role.UseCase, userUc user.UseCase) UseCase {
