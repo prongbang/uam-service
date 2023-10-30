@@ -17,6 +17,20 @@ type server struct {
 	AuthUc UseCase
 }
 
+func (u *server) RestEnforce(ctx context.Context, request *AuthEnforceRequest) (*AuthEnforceResponse, error) {
+	if u.AuthUc.RestEnforce(request.Subject, request.Object, request.Action) {
+		return &AuthEnforceResponse{}, nil
+	}
+	return nil, status.New(codes.PermissionDenied, core.TranslateCtx(ctx, localizations.CommonPermissionDenied)).Err()
+}
+
+func (u *server) RbacEnforce(ctx context.Context, request *AuthEnforceRequest) (*AuthEnforceResponse, error) {
+	if u.AuthUc.RbacEnforce(request.Subject, request.Object, request.Action) {
+		return &AuthEnforceResponse{}, nil
+	}
+	return nil, status.New(codes.PermissionDenied, core.TranslateCtx(ctx, localizations.CommonPermissionDenied)).Err()
+}
+
 func (u *server) VerifyToken(ctx context.Context, request *AuthVerifyTokenRequest) (*AuthVerifyTokenResponse, error) {
 	accessToken := request.GetToken()
 

@@ -28,7 +28,7 @@ type useCase struct {
 }
 
 func (u *useCase) Count(params Params) int64 {
-	if u.PermsUc.IsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
+	if u.PermsUc.RbacIsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
 		params.Permission = permissions.All
 	}
 
@@ -36,7 +36,7 @@ func (u *useCase) Count(params Params) int64 {
 }
 
 func (u *useCase) GetList(params Params) []User {
-	if u.PermsUc.IsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
+	if u.PermsUc.RbacIsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
 		params.Permission = permissions.All
 	}
 
@@ -45,11 +45,11 @@ func (u *useCase) GetList(params Params) []User {
 
 func (u *useCase) GetById(params ParamsGetById) User {
 	// Check permissions
-	if u.PermsUc.IsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
+	if u.PermsUc.RbacIsRoot(params.Payload.Roles, permissions.UamPermissionUsers) {
 		params.Permission = permissions.All
-	} else if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.Read) {
+	} else if u.PermsUc.RbacEnforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.Read) {
 		// Check my user
-		if u.PermsUc.Enforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.ReadMe) && params.ID != params.Payload.UserID {
+		if u.PermsUc.RbacEnforces(params.Payload.Roles, permissions.UamPermissionUsers, permissions.ReadMe) && params.ID != params.Payload.UserID {
 			return User{}
 		}
 	}
@@ -59,8 +59,8 @@ func (u *useCase) GetById(params ParamsGetById) User {
 
 func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
 	// Check permissions
-	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
-		if !u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Create) {
+	if !u.PermsUc.RbacIsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if !u.PermsUc.RbacEnforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Create) {
 			return User{}, &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
 		}
 	}
@@ -88,10 +88,10 @@ func (u *useCase) Add(data *CreateUser) (User, *core.Error) {
 
 func (u *useCase) Update(data *UpdateUser) (User, *core.Error) {
 	// Check permissions
-	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
-		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
+	if !u.PermsUc.RbacIsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if u.PermsUc.RbacEnforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
 			// Check my user
-			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.ID != data.Payload.UserID {
+			if u.PermsUc.RbacEnforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.ID != data.Payload.UserID {
 				return User{}, &core.Error{Code: code.StatusPermissionDenied, Message: localizations.CommonPermissionDenied}
 			}
 
@@ -133,10 +133,10 @@ func (u *useCase) Update(data *UpdateUser) (User, *core.Error) {
 
 func (u *useCase) UpdatePassword(data Password) error {
 	// Check permissions
-	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
-		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
+	if !u.PermsUc.RbacIsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if u.PermsUc.RbacEnforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
 			// Check my user
-			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.UserID != data.Payload.UserID {
+			if u.PermsUc.RbacEnforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.UserID != data.Payload.UserID {
 				return errors.New(localizations.CommonPermissionDenied)
 			}
 
@@ -175,8 +175,8 @@ func (u *useCase) UpdateLastLogin(userId string) error {
 
 func (u *useCase) Delete(data DeleteUser) error {
 	// Check permissions
-	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
-		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Delete) {
+	if !u.PermsUc.RbacIsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if u.PermsUc.RbacEnforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Delete) {
 			// Check my user
 			if data.ID == data.Payload.UserID {
 				return errors.New(localizations.CommonPermissionDenied)

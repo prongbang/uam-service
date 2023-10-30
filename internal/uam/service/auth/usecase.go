@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/prongbang/uam-service/internal/localizations"
 	"github.com/prongbang/uam-service/internal/pkg/token"
+	"github.com/prongbang/uam-service/internal/uam/service/permissions"
 	"github.com/prongbang/uam-service/internal/uam/service/role"
 	"github.com/prongbang/uam-service/internal/uam/service/user"
 	"github.com/prongbang/uam-service/pkg/cryptox"
@@ -15,12 +16,31 @@ type UseCase interface {
 	LoginWithEmail(data Login) (Credential, error)
 	LoginWithUsername(data Login) (Credential, error)
 	VerifyToken(accessToken string) error
+	RestEnforce(requests ...any) bool
+	RbacEnforce(requests ...any) bool
 }
 
 type useCase struct {
-	Repo   Repository
-	RoleUc role.UseCase
-	UserUc user.UseCase
+	Repo    Repository
+	RoleUc  role.UseCase
+	UserUc  user.UseCase
+	PermsUc permissions.UseCase
+}
+
+func (u *useCase) RestEnforce(requests ...any) bool {
+	allowed, err := u.PermsUc.RestEnforce(requests...)
+	if err != nil {
+		return false
+	}
+	return allowed
+}
+
+func (u *useCase) RbacEnforce(requests ...any) bool {
+	allowed, err := u.PermsUc.RbacEnforce(requests...)
+	if err != nil {
+		return false
+	}
+	return allowed
 }
 
 func (u *useCase) Login(data Login) (Credential, error) {
@@ -87,10 +107,11 @@ func (u *useCase) VerifyToken(accessToken string) error {
 	return err
 }
 
-func NewUseCase(repo Repository, roleUc role.UseCase, userUc user.UseCase) UseCase {
+func NewUseCase(repo Repository, roleUc role.UseCase, userUc user.UseCase, permsUc permissions.UseCase) UseCase {
 	return &useCase{
-		Repo:   repo,
-		RoleUc: roleUc,
-		UserUc: userUc,
+		Repo:    repo,
+		RoleUc:  roleUc,
+		UserUc:  userUc,
+		PermsUc: permsUc,
 	}
 }

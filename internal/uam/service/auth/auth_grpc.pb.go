@@ -24,6 +24,8 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthClient interface {
 	Login(ctx context.Context, in *AuthRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	VerifyToken(ctx context.Context, in *AuthVerifyTokenRequest, opts ...grpc.CallOption) (*AuthVerifyTokenResponse, error)
+	RestEnforce(ctx context.Context, in *AuthEnforceRequest, opts ...grpc.CallOption) (*AuthEnforceResponse, error)
+	RbacEnforce(ctx context.Context, in *AuthEnforceRequest, opts ...grpc.CallOption) (*AuthEnforceResponse, error)
 }
 
 type authClient struct {
@@ -52,12 +54,32 @@ func (c *authClient) VerifyToken(ctx context.Context, in *AuthVerifyTokenRequest
 	return out, nil
 }
 
+func (c *authClient) RestEnforce(ctx context.Context, in *AuthEnforceRequest, opts ...grpc.CallOption) (*AuthEnforceResponse, error) {
+	out := new(AuthEnforceResponse)
+	err := c.cc.Invoke(ctx, "/auth.Auth/RestEnforce", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) RbacEnforce(ctx context.Context, in *AuthEnforceRequest, opts ...grpc.CallOption) (*AuthEnforceResponse, error) {
+	out := new(AuthEnforceResponse)
+	err := c.cc.Invoke(ctx, "/auth.Auth/RbacEnforce", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility
 type AuthServer interface {
 	Login(context.Context, *AuthRequest) (*AuthResponse, error)
 	VerifyToken(context.Context, *AuthVerifyTokenRequest) (*AuthVerifyTokenResponse, error)
+	RestEnforce(context.Context, *AuthEnforceRequest) (*AuthEnforceResponse, error)
+	RbacEnforce(context.Context, *AuthEnforceRequest) (*AuthEnforceResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -70,6 +92,12 @@ func (UnimplementedAuthServer) Login(context.Context, *AuthRequest) (*AuthRespon
 }
 func (UnimplementedAuthServer) VerifyToken(context.Context, *AuthVerifyTokenRequest) (*AuthVerifyTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyToken not implemented")
+}
+func (UnimplementedAuthServer) RestEnforce(context.Context, *AuthEnforceRequest) (*AuthEnforceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RestEnforce not implemented")
+}
+func (UnimplementedAuthServer) RbacEnforce(context.Context, *AuthEnforceRequest) (*AuthEnforceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RbacEnforce not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -120,6 +148,42 @@ func _Auth_VerifyToken_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_RestEnforce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthEnforceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).RestEnforce(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.Auth/RestEnforce",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).RestEnforce(ctx, req.(*AuthEnforceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_RbacEnforce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AuthEnforceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).RbacEnforce(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/auth.Auth/RbacEnforce",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).RbacEnforce(ctx, req.(*AuthEnforceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +198,14 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "VerifyToken",
 			Handler:    _Auth_VerifyToken_Handler,
+		},
+		{
+			MethodName: "RestEnforce",
+			Handler:    _Auth_RestEnforce_Handler,
+		},
+		{
+			MethodName: "RbacEnforce",
+			Handler:    _Auth_RbacEnforce_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

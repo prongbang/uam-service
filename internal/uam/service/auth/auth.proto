@@ -29,8 +29,19 @@ message AuthVerifyTokenResponse {
   string message = 2;
 }
 
+message AuthEnforceRequest {
+  string subject = 1;
+  string object = 2;
+  string action = 3;
+}
+
+message AuthEnforceResponse {
+  bool allowed = 1;
+}
 
 service Auth {
   rpc Login (AuthRequest) returns (AuthResponse);
   rpc VerifyToken (AuthVerifyTokenRequest) returns (AuthVerifyTokenResponse);
+  rpc RestEnforce (AuthEnforceRequest) returns (AuthEnforceResponse);
+  rpc RbacEnforce (AuthEnforceRequest) returns (AuthEnforceResponse);
 }

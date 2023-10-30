@@ -33,7 +33,7 @@ func New(dbDriver database.Drivers, casbinXs casbinx.CasbinXs) Services {
 	userRepository := user.NewRepository(userDataSource, user_creatorDataSource)
 	permissionsUseCase := permissions.NewUseCase(casbinXs)
 	userUseCase := user.NewUseCase(userRepository, permissionsUseCase)
-	authUseCase := auth.NewUseCase(repository, useCase, userUseCase)
+	authUseCase := auth.NewUseCase(repository, useCase, userUseCase, permissionsUseCase)
 	handler := auth.NewHandler(authUseCase)
 	validate := auth.NewValidate()
 	router := auth.NewRouter(handler, validate)
