@@ -25,7 +25,7 @@ type DeleteByIdRequest struct {
 	BodyIdRequest
 }
 
-type BasicUser struct {
+type SensitiveUser struct {
 	bun.BaseModel `bun:"table:users,alias:u"`
 	ID            string `json:"id" bun:"id,pk,type:uuid"`
 	Username      string `json:"username" bun:"username"`

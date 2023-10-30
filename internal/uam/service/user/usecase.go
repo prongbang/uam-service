@@ -16,7 +16,7 @@ type UseCase interface {
 	GetById(params ParamsGetById) User
 	Add(data *CreateUser) (User, *core.Error)
 	Update(data *UpdateUser) (User, *core.Error)
-	UpdatePassword(data *Password) error
+	UpdatePassword(data Password) error
 	UpdateLastLogin(userId string) error
 	Delete(data DeleteUser) error
 }
@@ -130,10 +130,27 @@ func (u *useCase) Update(data *UpdateUser) (User, *core.Error) {
 	return usr, nil
 }
 
-func (u *useCase) UpdatePassword(data *Password) error {
-	usr := u.GetById(ParamsGetById{ID: data.UserID})
-	if core.IsUuid(usr.ID) && cryptox.VerifyPassword(data.CurrentPassword, usr.Password) {
-		return u.Repo.UpdatePassword(data.UserID, data.NewPassword)
+func (u *useCase) UpdatePassword(data Password) error {
+	// Check permissions
+	if !u.PermsUc.IsRoot(data.Payload.Roles, permissions.UamPermissionUsers) {
+		if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.Update) {
+			// Check my user
+			if u.PermsUc.Enforces(data.Payload.Roles, permissions.UamPermissionUsers, permissions.UpdateMe) && data.UserID != data.Payload.UserID {
+				return errors.New(localizations.CommonPermissionDenied)
+			}
+
+			// Check user under
+			us := u.GetById(ParamsGetById{ID: data.UserID, Payload: data.Payload})
+			if us.ID == nil {
+				return errors.New(localizations.CommonPermissionDenied)
+			}
+		}
+	}
+
+	usr := u.Repo.GetSensitiveById(data.UserID)
+	if core.IsUuid(&usr.ID) && cryptox.VerifyPassword(data.CurrentPassword, usr.Password) {
+		err := u.Repo.UpdatePassword(data.UserID, data.NewPassword)
+		return err
 	}
 	return errors.New(localizations.CommonInvalidData)
 }

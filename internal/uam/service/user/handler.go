@@ -21,7 +21,7 @@ func (h *handler) UpdatePassword(c *fiber.Ctx) error {
 	body := Password{}
 	_ = c.BodyParser(&body)
 
-	if err := h.UserUc.UpdatePassword(&body); err != nil {
+	if err := h.UserUc.UpdatePassword(body); err != nil {
 		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 	return core.Ok(c, nil)
@@ -34,7 +34,7 @@ func (h *handler) UpdatePasswordMe(c *fiber.Ctx) error {
 
 	body.UserID = payload.UserID
 
-	if err := h.UserUc.UpdatePassword(&body); err != nil {
+	if err := h.UserUc.UpdatePassword(body); err != nil {
 		return core.BadRequest(c, core.Translate(c, err.Error()))
 	}
 	return core.Ok(c, nil)

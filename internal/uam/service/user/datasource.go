@@ -19,9 +19,10 @@ type DataSource interface {
 	Count(params Params) int64
 	GetList(params Params) []User
 	GetById(params ParamsGetById) User
+	GetSensitiveById(id string) SensitiveUser
 	GetLevelById(userId string) int
-	GetByEmail(email string) BasicUser
-	GetByUsername(username string) BasicUser
+	GetByEmail(email string) SensitiveUser
+	GetByUsername(username string) SensitiveUser
 	Add(data *CreateUser) error
 	AddTx(data *CreateUser) (*bun.Tx, error)
 	Update(data *UpdateUser) error
@@ -181,6 +182,26 @@ func (d *dataSource) GetById(params ParamsGetById) User {
 	return User{}
 }
 
+func (d *dataSource) GetSensitiveById(id string) SensitiveUser {
+	db := d.Driver.GetPqDB()
+	sql := `
+	SELECT
+		u.id, 
+		u.username, 
+		u.email, 
+		u.password
+	FROM users u
+	WHERE u.id = ? AND u.flag = ?
+	LIMIT 1
+	`
+	args := []any{id, core.FlagAvailable}
+	data, err := bunx.SelectOne[SensitiveUser](db, sql, args...)
+	if err != nil {
+		return SensitiveUser{}
+	}
+	return data
+}
+
 func (d *dataSource) GetLevelById(userId string) int {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
@@ -204,11 +225,11 @@ func (d *dataSource) GetLevelById(userId string) int {
 	return 0
 }
 
-func (d *dataSource) GetByUsername(username string) BasicUser {
+func (d *dataSource) GetByUsername(username string) SensitiveUser {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	item := BasicUser{}
+	item := SensitiveUser{}
 	err := db.NewSelect().
 		Model(&item).
 		ColumnExpr("u.id, u.username, u.email, u.password").
@@ -221,11 +242,11 @@ func (d *dataSource) GetByUsername(username string) BasicUser {
 	return item
 }
 
-func (d *dataSource) GetByEmail(email string) BasicUser {
+func (d *dataSource) GetByEmail(email string) SensitiveUser {
 	db := d.Driver.GetPqDB()
 	ctx := context.Background()
 
-	item := BasicUser{}
+	item := SensitiveUser{}
 	err := db.NewSelect().
 		Model(&item).
 		ColumnExpr("u.id, u.username, u.email, u.password").

@@ -109,13 +109,18 @@ message UserDeleteResponse {
   string message = 2;
 }
 
+message UserUpdatePasswordResponse {
+  string code = 1;
+  string message = 2;
+}
+
 service User {
   rpc GetMe (UserMeRequest) returns (UserResponse);
   rpc GetById (UserIdRequest) returns (UserResponse);
   rpc GetList (UserListRequest) returns (UserListResponse);
   rpc Add (UserCreateRequest) returns (UserResponse);
   rpc Update (UserUpdateRequest) returns (UserResponse);
-  rpc UpdatePassword (UserUpdatePasswordRequest) returns (UserResponse);
+  rpc UpdatePassword (UserUpdatePasswordRequest) returns (UserUpdatePasswordResponse);
   rpc UpdatePasswordMe (UserUpdatePasswordMeRequest) returns (UserResponse);
   rpc Delete (UserDeleteRequest) returns (UserDeleteResponse);
 }

@@ -105,9 +105,24 @@ func (s *server) Update(ctx context.Context, request *UserUpdateRequest) (*UserR
 	}, nil
 }
 
-func (s *server) UpdatePassword(ctx context.Context, request *UserUpdatePasswordRequest) (*UserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *server) UpdatePassword(ctx context.Context, request *UserUpdatePasswordRequest) (*UserUpdatePasswordResponse, error) {
+	payload := core.GrpcPayload(request.GetToken())
+
+	body := Password{
+		UserID:          request.GetUserId(),
+		NewPassword:     request.GetNewPassword(),
+		CurrentPassword: request.GetCurrentPassword(),
+		Payload:         payload,
+	}
+	err := s.UserUc.UpdatePassword(body)
+	if err != nil {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	return &UserUpdatePasswordResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+	}, nil
 }
 
 func (s *server) UpdatePasswordMe(ctx context.Context, request *UserUpdatePasswordMeRequest) (*UserResponse, error) {
