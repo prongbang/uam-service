@@ -121,6 +121,6 @@ service User {
   rpc Add (UserCreateRequest) returns (UserResponse);
   rpc Update (UserUpdateRequest) returns (UserResponse);
   rpc UpdatePassword (UserUpdatePasswordRequest) returns (UserUpdatePasswordResponse);
-  rpc UpdatePasswordMe (UserUpdatePasswordMeRequest) returns (UserResponse);
+  rpc UpdatePasswordMe (UserUpdatePasswordMeRequest) returns (UserUpdatePasswordResponse);
   rpc Delete (UserDeleteRequest) returns (UserDeleteResponse);
 }

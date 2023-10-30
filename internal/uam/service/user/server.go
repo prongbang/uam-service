@@ -125,9 +125,23 @@ func (s *server) UpdatePassword(ctx context.Context, request *UserUpdatePassword
 	}, nil
 }
 
-func (s *server) UpdatePasswordMe(ctx context.Context, request *UserUpdatePasswordMeRequest) (*UserResponse, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *server) UpdatePasswordMe(ctx context.Context, request *UserUpdatePasswordMeRequest) (*UserUpdatePasswordResponse, error) {
+	payload := core.GrpcPayload(request.GetToken())
+
+	body := MyPassword{
+		UserID:          payload.UserID,
+		NewPassword:     request.GetNewPassword(),
+		CurrentPassword: request.GetCurrentPassword(),
+	}
+	err := s.UserUc.UpdatePasswordMe(body)
+	if err != nil {
+		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, localizations.CommonInvalidData)).Err()
+	}
+
+	return &UserUpdatePasswordResponse{
+		Code:    code.StatusOK,
+		Message: http.StatusText(http.StatusOK),
+	}, nil
 }
 
 func (s *server) Delete(ctx context.Context, request *UserDeleteRequest) (*UserDeleteResponse, error) {

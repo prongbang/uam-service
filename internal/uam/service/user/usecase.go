@@ -17,6 +17,7 @@ type UseCase interface {
 	Add(data *CreateUser) (User, *core.Error)
 	Update(data *UpdateUser) (User, *core.Error)
 	UpdatePassword(data Password) error
+	UpdatePasswordMe(data MyPassword) error
 	UpdateLastLogin(userId string) error
 	Delete(data DeleteUser) error
 }
@@ -147,6 +148,15 @@ func (u *useCase) UpdatePassword(data Password) error {
 		}
 	}
 
+	usr := u.Repo.GetSensitiveById(data.UserID)
+	if core.IsUuid(&usr.ID) && cryptox.VerifyPassword(data.CurrentPassword, usr.Password) {
+		err := u.Repo.UpdatePassword(data.UserID, data.NewPassword)
+		return err
+	}
+	return errors.New(localizations.CommonInvalidData)
+}
+
+func (u *useCase) UpdatePasswordMe(data MyPassword) error {
 	usr := u.Repo.GetSensitiveById(data.UserID)
 	if core.IsUuid(&usr.ID) && cryptox.VerifyPassword(data.CurrentPassword, usr.Password) {
 		err := u.Repo.UpdatePassword(data.UserID, data.NewPassword)

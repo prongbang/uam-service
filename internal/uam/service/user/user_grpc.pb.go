@@ -28,7 +28,7 @@ type UserClient interface {
 	Add(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	Update(ctx context.Context, in *UserUpdateRequest, opts ...grpc.CallOption) (*UserResponse, error)
 	UpdatePassword(ctx context.Context, in *UserUpdatePasswordRequest, opts ...grpc.CallOption) (*UserUpdatePasswordResponse, error)
-	UpdatePasswordMe(ctx context.Context, in *UserUpdatePasswordMeRequest, opts ...grpc.CallOption) (*UserResponse, error)
+	UpdatePasswordMe(ctx context.Context, in *UserUpdatePasswordMeRequest, opts ...grpc.CallOption) (*UserUpdatePasswordResponse, error)
 	Delete(ctx context.Context, in *UserDeleteRequest, opts ...grpc.CallOption) (*UserDeleteResponse, error)
 }
 
@@ -94,8 +94,8 @@ func (c *userClient) UpdatePassword(ctx context.Context, in *UserUpdatePasswordR
 	return out, nil
 }
 
-func (c *userClient) UpdatePasswordMe(ctx context.Context, in *UserUpdatePasswordMeRequest, opts ...grpc.CallOption) (*UserResponse, error) {
-	out := new(UserResponse)
+func (c *userClient) UpdatePasswordMe(ctx context.Context, in *UserUpdatePasswordMeRequest, opts ...grpc.CallOption) (*UserUpdatePasswordResponse, error) {
+	out := new(UserUpdatePasswordResponse)
 	err := c.cc.Invoke(ctx, "/user.User/UpdatePasswordMe", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -122,7 +122,7 @@ type UserServer interface {
 	Add(context.Context, *UserCreateRequest) (*UserResponse, error)
 	Update(context.Context, *UserUpdateRequest) (*UserResponse, error)
 	UpdatePassword(context.Context, *UserUpdatePasswordRequest) (*UserUpdatePasswordResponse, error)
-	UpdatePasswordMe(context.Context, *UserUpdatePasswordMeRequest) (*UserResponse, error)
+	UpdatePasswordMe(context.Context, *UserUpdatePasswordMeRequest) (*UserUpdatePasswordResponse, error)
 	Delete(context.Context, *UserDeleteRequest) (*UserDeleteResponse, error)
 	mustEmbedUnimplementedUserServer()
 }
@@ -149,7 +149,7 @@ func (UnimplementedUserServer) Update(context.Context, *UserUpdateRequest) (*Use
 func (UnimplementedUserServer) UpdatePassword(context.Context, *UserUpdatePasswordRequest) (*UserUpdatePasswordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
 }
-func (UnimplementedUserServer) UpdatePasswordMe(context.Context, *UserUpdatePasswordMeRequest) (*UserResponse, error) {
+func (UnimplementedUserServer) UpdatePasswordMe(context.Context, *UserUpdatePasswordMeRequest) (*UserUpdatePasswordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePasswordMe not implemented")
 }
 func (UnimplementedUserServer) Delete(context.Context, *UserDeleteRequest) (*UserDeleteResponse, error) {
