@@ -4,22 +4,22 @@ option go_package = "/auth";
 
 package auth;
 
-message LoginRequest {
+message AuthRequest {
   string username = 1;
   string email = 3;
   string password = 2;
 }
 
-message LoginCredential {
+message AuthCredential {
   string token = 1;
   repeated string roles = 2;
 }
 
-message LoginResponse {
+message AuthResponse {
   string code = 1;
-  LoginCredential data = 2;
+  AuthCredential data = 2;
 }
 
 service Auth {
-  rpc Login (LoginRequest) returns (LoginResponse);
+  rpc Login (AuthRequest) returns (AuthResponse);
 }

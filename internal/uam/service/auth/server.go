@@ -14,10 +14,9 @@ import (
 type server struct {
 	Uc     user.UseCase
 	AuthUc UseCase
-	UnimplementedAuthServer
 }
 
-func (u *server) Login(ctx context.Context, request *LoginRequest) (*LoginResponse, error) {
+func (u *server) Login(ctx context.Context, request *AuthRequest) (*AuthResponse, error) {
 	username := request.GetUsername()
 	email := request.GetEmail()
 	password := request.GetPassword()
@@ -43,11 +42,13 @@ func (u *server) Login(ctx context.Context, request *LoginRequest) (*LoginRespon
 	if err != nil {
 		return nil, status.New(codes.InvalidArgument, core.TranslateCtx(ctx, err.Error())).Err()
 	}
-	return &LoginResponse{
+	return &AuthResponse{
 		Code: code.StatusOK,
-		Data: &LoginCredential{Token: credential.Token, Roles: credential.Roles},
+		Data: &AuthCredential{Token: credential.Token, Roles: credential.Roles},
 	}, nil
 }
+
+func (u *server) mustEmbedUnimplementedAuthServer() {}
 
 func NewServer(
 	uc user.UseCase,
